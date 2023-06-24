@@ -1,0 +1,1 @@
+SWIG使用Windows版时，请勿使用MinGW版的CMake。CMake会选择错误的SWIG的lib路径，导致出现swig.swg not found的问题。

@@ -1,0 +1,6 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/AsrQml">
+        <file alias="MainWindow.qml">qml/MainWindow.qml</file>
+    </qresource>
+</RCC>

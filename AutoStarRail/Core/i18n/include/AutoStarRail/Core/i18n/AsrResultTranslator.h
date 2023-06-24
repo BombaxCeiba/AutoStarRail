@@ -1,0 +1,12 @@
+#ifndef ASR_CORE_I18N_ASRRESULTTRANSLATOR_H
+#define ASR_CORE_I18N_ASRRESULTTRANSLATOR_H
+
+#include <AutoStarRail/Core/i18n/i18n.h>
+
+ASR_CORE_I18N_NS_BEGIN
+
+extern const I18n<AsrResult> asr_result_translator;
+
+ASR_CORE_I18N_NS_END
+
+#endif // ASR_CORE_I18N_ASRRESULTTRANSLATOR_H
