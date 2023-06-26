@@ -39,8 +39,6 @@ add_library(Asr3rdParty INTERFACE)
 
 # config GoogleTest
 # GoogleTest requires at least C++14
-set(CMAKE_CXX_STANDARD 14)
-
 FetchContent_Declare(
     googletest
     GIT_REPOSITORY ${GITHUB_MIRROR_URL}/google/googletest.git
@@ -51,18 +49,6 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(googletest)
-
-# config Nlohnmann Json
-# Notice: This library assume string is encoded in UTF-8.
-set(CMAKE_CXX_STANDARD 20)
-FetchContent_Declare(
-    NlohnmannJson
-    GIT_REPOSITORY ${GITHUB_MIRROR_URL}/nlohmann/json.git
-    GIT_TAG v3.11.2
-)
-
-FetchContent_MakeAvailable(NlohnmannJson)
-target_link_libraries(Asr3rdParty INTERFACE nlohmann_json::nlohmann_json)
 
 # # config dylib
 # FetchContent_Declare(
@@ -163,7 +149,7 @@ set(ASR_USE_BUNDLIED_ICU FALSE)
 if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(ASR_ICU_VERSION 73)
 
-    if(${PROCESSOR_ARCHITECTURE} MATCHES "ARM")
+    if(${PROCESSOR_ARCHITECTURE} MATCHES "ARM64")
         # arm64
         _on_download_icu()
         FetchContent_Declare(
@@ -242,4 +228,99 @@ endfunction()
 
 if(NOT Boost_FOUND)
     _download_and_config_boost()
+endif()
+
+# config Nlohnmann Json
+# Notice: This library assume string is encoded in UTF-8.
+FetchContent_Declare(
+    NlohnmannJson
+    GIT_REPOSITORY ${GITHUB_MIRROR_URL}/nlohmann/json.git
+    GIT_TAG v3.11.2
+)
+
+FetchContent_MakeAvailable(NlohnmannJson)
+
+target_link_libraries(Asr3rdParty INTERFACE nlohmann_json::nlohmann_json)
+
+# See [added support for cmake "find_package"](https://github.com/microsoft/onnxruntime/pull/8919)
+find_package(onnxruntime)
+
+function(_download_and_config_onnxruntime TARGET_NAME URL)
+    FetchContent_Declare(${TARGET_NAME}
+        URL ${URL}
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        INSTALL_COMMAND "")
+    FetchContent_MakeAvailable(${TARGET_NAME})
+    FetchContent_GetProperties(${TARGET_NAME})
+    add_library(AsrBundledOnnxRuntime SHARED IMPORTED)
+    find_library(${TARGET_NAME}_DLL onnxruntime "${${TARGET_NAME}_SOURCE_DIR}/lib")
+    set_target_properties(
+        AsrBundledOnnxRuntime
+        PROPERTIES
+        IMPORTED_CONFIGURATIONS RELEASE
+        IMPORTED_LOCATION "${${TARGET_NAME}_DLL}"
+        INTERFACE_INCLUDE_DIRECTORIES "${${TARGET_NAME}_SOURCE_DIR}/include"
+        INTERFACE_COMPILE_OPTIONS "")
+    set_property(
+        TARGET AsrBundledOnnxRuntime
+        APPEND PROPERTY IMPORTED_CONFIGURATIONS RELWITHDEBINFO)
+
+    if(WIN32)
+        set_property(
+            TARGET AsrBundledOnnxRuntime
+            PROPERTY IMPORTED_IMPLIB "${${TARGET_NAME}_SOURCE_DIR}/lib/onnxruntime.lib")
+    endif()
+endfunction()
+
+if(NOT onnxruntime_FOUND)
+    if(WIN32)
+        if(${PROCESSOR_ARCHITECTURE} MATCHES "ARM64")
+            # arm64
+            _download_and_config_onnxruntime(
+                "onnxruntime_msvc_amd64"
+                "${GITHUB_MIRROR_URL}/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-win-arm64-1.15.1.zip")
+        elseif(${PROCESSOR_ARCHITECTURE} MATCHES "ARM")
+            # arm
+            _download_and_config_onnxruntime(
+                "onnxruntime_msvc_amd64"
+                "${GITHUB_MIRROR_URL}/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-win-arm-1.15.1.zip")
+        elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+            # amd64
+            _download_and_config_onnxruntime(
+                "onnxruntime_msvc_amd64"
+                "${GITHUB_MIRROR_URL}/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-win-x64-1.15.1.zip")
+        elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            # x86
+            _download_and_config_onnxruntime(
+                "onnxruntime_msvc_x86"
+                "${GITHUB_MIRROR_URL}/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-win-x86-1.15.1.zip")
+        else()
+            message(FATAL_ERROR "Unsupported architecture.")
+        endif()
+    elseif(APPLE)
+        # TODO
+        message(FATAL_ERROR "Not yet supported. PR welcome.")
+    elseif(UNIX)
+        if(${PROCESSOR_ARCHITECTURE} MATCHES "ARM")
+            # arm64
+            _download_and_config_onnxruntime(
+                "onnxruntime_linux_arm64"
+                "${GITHUB_MIRROR_URL}/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-linux-aarch64-1.15.1.tgz")
+        elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+            # amd64
+            _download_and_config_onnxruntime(
+                "onnxruntime_linux_amd64"
+                "${GITHUB_MIRROR_URL}/microsoft/onnxruntime/releases/download/v1.15.1/onnxruntime-linux-x64-1.15.1.tgz")
+        elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+            # x86
+            message(FATAL_ERROR "No official prebuilt binary for this architecture.")
+        else()
+            message(FATAL_ERROR "Unsupported architecture.")
+        endif()
+    endif()
+
+    target_link_libraries(Asr3rdParty INTERFACE AsrBundledOnnxRuntime)
+else()
+    target_link_libraries(Asr3rdParty INTERFACE onnxruntime::onnxruntime)
 endif()
