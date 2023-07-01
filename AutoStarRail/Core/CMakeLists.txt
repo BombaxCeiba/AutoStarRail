@@ -9,16 +9,19 @@ target_compile_options(AsrCoreObjects PRIVATE
 set_property(TARGET AsrCoreObjects PROPERTY POSITION_INDENDENT_CODE ON)
 target_compile_definitions(AsrCoreObjects PRIVATE -DASR_BUILD_SHARED)
 target_link_libraries(AsrCoreObjects PUBLIC
-    Boost::boost
     Boost::filesystem
     ICU::data
     ICU::i18n
     ICU::uc)
 
-# if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-#     # See https://github.com/fmtlib/fmt/issues/2708
-#     target_compile_options(AsrCoreObjects PRIVATE -Wstringop-overflow)
-# endif()
+if(ASR_USE_BUNDLIED_BOOST)
+    target_link_libraries(AsrCoreObjects PUBLIC ${ASR_BUNDLIED_BOOST_LIBS})
+else()
+    # 对于使用msys包管理器安装boost的用户，使用msys的clangd或使用这个语句强制将Boost_INCLUDE_DIRS添加到compile_commands.json
+    # target_compile_options(AsrCoreObjects PRIVATE "-I${Boost_INCLUDE_DIRS}")
+    target_include_directories(AsrCoreObjects PUBLIC ${Boost_INCLUDE_DIRS})
+    target_link_libraries(AsrCoreObjects PRIVATE ${Boost_LIBRARIES})
+endif()
 
 if(WIN32)
     target_compile_definitions(AsrCoreObjects PRIVATE ASR_PLATFORM=WINDOWS)
@@ -31,7 +34,7 @@ else()
 endif()
 
 # asr_add_core_conpoment(Utils)
-asr_add_core_conpoment(Core)
+asr_add_core_conpoment(Impl)
 asr_add_core_conpoment(ForeignInterfaceHost)
 asr_add_core_conpoment(GlobalSettingsManager)
 asr_add_core_conpoment(Logger)
@@ -40,13 +43,6 @@ asr_add_core_conpoment(i18n)
 
 add_library(libAsrCore SHARED)
 add_dependencies(libAsrCore AsrCoreObjects)
-
-if(ASR_USE_BUNDLIED_ICU)
-    add_custom_command(
-        TARGET libAsrCore
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASR_BUNDLIED_ICU_LIBRARIES} $<TARGET_FILE_DIR:libAsrCore>)
-endif()
 
 if(${BUILD_TEST})
     add_library(AsrStaticCore STATIC)

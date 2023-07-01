@@ -29,7 +29,7 @@ endmacro()
 function(asr_add_additional_test ADDITIONAL_TEST_DIRECTORY_NAME)
     aux_source_directory(${ADDITIONAL_TEST_DIRECTORY_NAME} SOURCES)
     add_executable(AdditionalTest ${SOURCES})
-    target_link_libraries(AdditionalTest PRIVATE GTest::gtest_main)
+    target_link_libraries(AdditionalTest PRIVATE GTest::gtest_main GTest::gtest)
 
     # force cmake output test executable to ${CMAKE_BINARY_DIR}/Test
     set_target_properties(AdditionalTest PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Test)
@@ -47,7 +47,7 @@ function(asr_add_core_test TEST_FOLDER PRIVATE_EX_LIBS)
     aux_source_directory(${TEST_FOLDER}/test TEST_SOURCES)
     set(TEST_NAME "${TEST_FOLDER}Test")
     add_executable(${TEST_NAME} ${TEST_SOURCES})
-    target_link_libraries(${TEST_NAME} PUBLIC GTest::gtest_main AsrStaticCore ${PRIVATE_EX_LIBS})
+    target_link_libraries(${TEST_NAME} PUBLIC GTest::gtest_main GTest::gtest AsrStaticCore ${PRIVATE_EX_LIBS})
 
     get_target_property(INCLUDE_DIRS AsrCoreObjects INCLUDE_DIRECTORIES)
     target_include_directories(${TEST_NAME} PRIVATE ${INCLUDE_DIRS})

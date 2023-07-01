@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.21)
 
 project(AtuoStarRail LANGUAGES CXX VERSION 0.1)
 
+# fix missing CMAKE_ASM_MASM_COMPILE_OBJECT or CMAKE_ASM_NASM_COMPILE_OBJECT
+# NOTICE: I change CMakeLists.txt in boost context, so boost can explicitly use MASM on Windows.
+#         Then I must enable ASM_NASM after ASM_MASM, therefore CMake will compile asm files in OpenCV using NASM compiler as defualt asm complier.
+enable_language(ASM_MASM ASM_NASM)
 
 option(EXPORT_JAVA "导出Java接口" OFF)
 option(EXPORT_CSHARP "导出C#接口" OFF)
@@ -13,6 +17,8 @@ option(BUILD_TEST "" OFF)
 option(BUILD_QT5_GUI "" ON)
 option(USE_LLD "Using lld instead of using ld." OFF)
 
+option(ASR_USE_BUNDLIED_BOOST "强制使用下载的Boost源码构建" OFF)
+option(ASR_USE_BUNDLIED_OPENCV "强制使用下载的OpenCV源码构建" OFF)
 
 if(NOT DEFINED GITHUB_MIRROR_URL)
     set(GITHUB_MIRROR_URL "https://github.com")

@@ -34,6 +34,8 @@ else()
     endif()
 endif()
 
+add_custom_target(AsrAutoCopyDll ALL DEPENDS AsrCoreObjects)
+
 set(CMAKE_CXX_STANDARD 20)
 add_library(Asr3rdParty INTERFACE)
 
@@ -41,22 +43,13 @@ add_library(Asr3rdParty INTERFACE)
 # GoogleTest requires at least C++14
 FetchContent_Declare(
     googletest
-    GIT_REPOSITORY ${GITHUB_MIRROR_URL}/google/googletest.git
-    GIT_TAG v1.13.0
+    URL ${GITHUB_MIRROR_URL}/google/googletest/archive/refs/tags/v1.13.0.tar.gz
 )
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(googletest)
-
-# # config dylib
-# FetchContent_Declare(
-# dylib
-# URL "${GITHUB_MIRROR_URL}/martin-olivier/dylib/archive/refs/tags/v2.1.0.zip"
-# )
-
-# FetchContent_MakeAvailable(dylib)
 
 # config QT5
 if(${BUILD_QT5_GUI})
@@ -90,17 +83,22 @@ endif()
 FetchContent_MakeAvailable(spdlog)
 target_link_libraries(Asr3rdParty INTERFACE spdlog::spdlog)
 
-# NOTICE: OpenCV wil turn this option ON automically, so I explicitly set it.
-set(BUILD_SHARED_LIBS ON)
+find_package(Eigen3 3.4 NO_MODULE)
 
-find_package(OpenCV 4.7)
+if(NOT Eigen3_FOUND)
+    message("Downloading Eigen3.4...")
+    FetchContent_Declare(AsrEigen3
+        URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip)
+    FetchContent_MakeAvailable(AsrEigen3)
+    find_package(Eigen3 3.4 NO_MODULE)
+endif()
 
-if(NOT OpenCV_FOUND)
+macro(_download_and_config_opencv)
     message("OpenCV not found. Downloading OpenCV source.")
 
     FetchContent_Declare(
-        OpenCV47
-        URL ${GITHUB_MIRROR_URL}/opencv/opencv/archive/refs/tags/4.7.0.zip
+        OpenCV48
+        URL ${GITHUB_MIRROR_URL}/opencv/opencv/archive/refs/tags/4.8.0.tar.gz
     )
 
     if(${ASR_USE_CCACHE})
@@ -121,7 +119,7 @@ if(NOT OpenCV_FOUND)
     set(BUILD_opencv_video OFF)
     set(BUILD_opencv_videoio OFF)
     set(BUILD_opencv_world OFF)
-    set(WITH_EIGEN OFF)
+    set(WITH_EIGEN ON)
     set(WITH_OPENCL OFF)
     set(BUILD_opencv_python_bindings_generator OFF)
     set(BUILD_opencv_python_test OFF)
@@ -131,20 +129,28 @@ if(NOT OpenCV_FOUND)
     set(BUILD_opencv_js OFF)
     set(BUILD_opencv_ts OFF)
 
-    FetchContent_MakeAvailable(OpenCV47)
+    FetchContent_MakeAvailable(OpenCV48)
     target_link_libraries(Asr3rdParty INTERFACE opencv_core opencv_imgproc)
+endmacro()
+
+# NOTICE: OpenCV wil turn this option ON automically, so I explicitly set it.
+set(BUILD_SHARED_LIBS ON)
+
+if(ASR_USE_BUNDLIED_OPENCV)
+    _download_and_config_opencv()
 else()
-    target_link_libraries(Asr3rdParty INTERFACE ${OpenCV_LIBS})
+    find_package(OpenCV 4.8)
+
+    if(NOT OpenCV_FOUND)
+        target_link_libraries(Asr3rdParty INTERFACE ${OpenCV_LIBS})
+    else()
+        message(FATAL_ERROR "OpenCV not found. Please install it manually or set ASR_USE_BUNDLIED_OPENCV=ON.")
+    endif()
 endif()
 
 function(_on_download_icu)
     message("Downloading prebuilt icu binary.")
-    set(ASR_USE_BUNDLIED_ICU TRUE PARENT_SCOPE)
 endfunction()
-
-# TODO: Add ICU PDB files to build directory.
-# TODO: Need to be tested on MSVC environment
-set(ASR_USE_BUNDLIED_ICU FALSE)
 
 if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(ASR_ICU_VERSION 73)
@@ -202,21 +208,36 @@ if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     endif()
 
     find_package(ICU COMPONENTS data i18n uc REQUIRED)
+
+    add_custom_command(
+        TARGET AsrAutoCopyDll
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASR_BUNDLIED_ICU_LIBRARIES} $<TARGET_FILE_DIR:libAsrCore>)
+    add_custom_command(
+        TARGET AsrAutoCopyDll
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${ASR_BUNDLIED_ICU_LIBRARIES} ${CMAKE_BINARY_DIR}/Test)
 endif()
 
 find_package(ICU COMPONENTS data i18n uc REQUIRED)
-
-find_package(Boost 1.82 COMPONENTS filesystem)
 
 function(_download_and_config_boost)
     message("Downloading and confing boost 1.82.")
     FetchContent_Declare(
         AsrBoost
-        URL ${GITHUB_MIRROR_URL}/boostorg/boost/releases/download/boost-1.82.0/boost-1.82.0.7z)
+        URL ${GITHUB_MIRROR_URL}/boostorg/boost/releases/download/boost-1.82.0/boost-1.82.0.7z
+        PATCH_COMMAND ${CMAKE_COMMAND} -E copy
+        "${CMAKE_SOURCE_DIR}/cmake/AsrBoostContext182Patch.cmake" <SOURCE_DIR>/libs/context/CMakeLists.txt)
 
     # See [Symbol redefinition on latest mingw gcc](https://github.com/boostorg/stacktrace/issues/133)
-    set(BOOST_STACKTRACE_ENABLE_WINDBG_CACHED OFF)
-    set(BOOST_STACKTRACE_ENABLE_WINDBG OFF)
+    # You should use boost from msys package manager to avoid this error.
+    # set(BOOST_STACKTRACE_ENABLE_WINDBG_CACHED OFF)
+    # set(BOOST_STACKTRACE_ENABLE_WINDBG OFF)
+
+    # Avoid error: "LINK : fatal error LNK1104: 无法打开文件“zlib.obj”
+    if(MSVC)
+        set(BOOST_IOSTREAMS_ENABLE_ZLIB OFF)
+    endif()
 
     # Fix error: .../libs/asio/include/boost/asio/detail/impl/winsock_init.ipp:39: undefined reference to `__imp_WSAStartup'
     if(WIN32)
@@ -226,17 +247,25 @@ function(_download_and_config_boost)
     FetchContent_MakeAvailable(AsrBoost)
 endfunction()
 
-if(NOT Boost_FOUND)
+if(${ASR_USE_BUNDLIED_BOOST})
     _download_and_config_boost()
+    set(ASR_USE_BUNDLIED_BOOST TRUE)
+    list(APPEND ASR_BUNDLIED_BOOST_LIBS Boost::regex_icu Boost::dll Boost::predef)
+else()
+    find_package(Boost 1.82 COMPONENTS filesystem)
+
+    if(NOT Boost_FOUND)
+        message(FATAL_ERROR "Boost not found. Please install it manually or set ASR_USE_BUNDLIED_BOOST=ON.")
+    else()
+        set(ASR_USE_BUNDLIED_BOOST OFF)
+    endif()
 endif()
 
 # config Nlohnmann Json
 # Notice: This library assume string is encoded in UTF-8.
 FetchContent_Declare(
     NlohnmannJson
-    GIT_REPOSITORY ${GITHUB_MIRROR_URL}/nlohmann/json.git
-    GIT_TAG v3.11.2
-)
+    URL ${GITHUB_MIRROR_URL}/nlohmann/json/archive/refs/tags/v3.11.2.tar.gz)
 
 FetchContent_MakeAvailable(NlohnmannJson)
 
