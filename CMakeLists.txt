@@ -16,6 +16,7 @@ option(ASR_SPDLOG_USE_STD_FMT "项目自带的spdlog使用标准库的fmt，OFF�
 option(BUILD_TEST "" OFF)
 option(BUILD_QT5_GUI "" ON)
 option(USE_LLD "Using lld instead of using ld." OFF)
+option(ASR_USE_CCACHE "Using CCACHE" OFF)
 
 option(ASR_USE_BUNDLIED_BOOST "强制使用下载的Boost源码构建" OFF)
 option(ASR_USE_BUNDLIED_OPENCV "强制使用下载的OpenCV源码构建" OFF)
