@@ -1,5 +1,7 @@
-.vscode
-build
-out
-archieve
-.cache
+.vscode/
+build/
+out/
+archieve/
+.cache/
+.vs/
+/CMakeSettings.json
