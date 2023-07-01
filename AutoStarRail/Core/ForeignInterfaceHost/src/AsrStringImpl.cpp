@@ -48,9 +48,10 @@ int64_t AsrStringCppImpl::Release() { return ref_counter_.Release(this); }
 AsrResult AsrStringCppImpl::QueryInterface(const AsrGuid& iid, void** pp_object)
 {
     return ASR::Utils::AsrInterfaceConverter(this, iid, pp_object)
-        .IsExpected<IAsrBase>(ASR_IID_BASE)
-        .IsExpected<IAsrReadOnlyString>(ASR_IID_READ_ONLY_STRING)
-        .IsExpected<IAsrString>(ASR_IID_STRING)
+        .IsExpected<IAsrBase>()
+        .IsExpected<IAsrReadOnlyString>()
+        .IsExpected<IAsrString>()
+        .IsExpected<AsrStringCppImpl>()
         .GetResult();
 }
 
@@ -219,8 +220,8 @@ namespace Details
         AsrResult QueryInterface(const AsrGuid& iid, void** pp_object) override
         {
             return ASR::Utils::AsrInterfaceConverter(this, iid, pp_object)
-                .IsExpected<IAsrBase>(ASR_IID_BASE)
-                .IsExpected<IAsrReadOnlyString>(ASR_IID_READ_ONLY_STRING)
+                .IsExpected<IAsrBase>()
+                .IsExpected<IAsrReadOnlyString>()
                 .GetResult();
         }
 

@@ -64,7 +64,7 @@ public:
             std::u8string* out_error_description) const;
 };
 
-template class I18n<AsrResult>;
+extern template class I18n<AsrResult>;
 
 ASR_CORE_I18N_NS_END
 

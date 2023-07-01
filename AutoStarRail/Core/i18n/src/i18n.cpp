@@ -7,6 +7,8 @@
 
 ASR_CORE_I18N_NS_BEGIN
 
+template class I18n<AsrResult>;
+
 ASR_NS_ANONYMOUS_DETAILS_BEGIN
 
 template <class T>
@@ -78,7 +80,7 @@ I18n<T>::I18n(const boost::filesystem::path& json_path)
 {
     std::ifstream ifs{};
     ifs.exceptions(std::ios::badbit | std::ios::failbit);
-    ifs.open(json_path);
+    ifs.open(json_path.string());
     const auto json = ::nlohmann::json::parse(ifs);
     translate_resource_ = json.get<decltype(translate_resource_)>();
 

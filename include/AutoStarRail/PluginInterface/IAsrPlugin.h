@@ -28,8 +28,8 @@ ASR_DEFINE_GUID(
 SWIG_IGNORE(IAsrPlugin)
 ASR_INTERFACE IAsrPlugin : public IAsrBase
 {
-    ASR_METHOD EnumFeature(AsrPluginFeature * p_out_feature) = 0;
-    ASR_METHOD GetCaptureInterface(
+    ASR_METHOD EnumFeature(const size_t index, AsrPluginFeature * p_out_feature) = 0;
+    ASR_METHOD GetInterface(
         const AsrGuid& feature_iid,
         IAsrBase**     pp_out_feature_interface) = 0;
 };
@@ -61,8 +61,8 @@ SWIG_ENABLE_DIRECTOR(IAsrSwigPlugin)
 SWIG_ENABLE_SHARED_PTR(IAsrSwigPlugin)
 ASR_INTERFACE IAsrSwigPlugin : public IAsrSwigBase
 {
-    virtual AsrRetPluginFeature EnumFeature() = 0;
-    virtual AsrRetSwigBase GetCaptureInterface(const AsrGuid& feature_iid) = 0;
+    virtual AsrRetPluginFeature EnumFeature(const size_t index) = 0;
+    virtual AsrRetSwigBase GetInterface(const AsrGuid& feature_iid) = 0;
     virtual ~IAsrSwigPlugin() override = default;
 };
 

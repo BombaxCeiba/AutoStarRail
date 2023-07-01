@@ -34,13 +34,13 @@ public:
     {
     }
     template <class Other>
-    AsrInterfaceConverter& IsExpected(const AsrGuid& convertible_guid)
+    AsrInterfaceConverter& IsExpected()
     {
         if (!pointer_)
         {
             return *this;
         }
-        if (convertible_guid == expected_guid_)
+        if (AsrIidOf<Other>() == expected_guid_)
         {
             *pp_object_ = static_cast<Other*>(pointer_);
             pointer_->AddRef();

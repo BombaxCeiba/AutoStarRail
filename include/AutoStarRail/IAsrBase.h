@@ -18,6 +18,9 @@
 #define ASR_DEFINE_GUID(name, type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
     static const AsrGuid name =                                                \
         {l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}};
+#define ASR_DEFINE_CLASS_GUID(name, type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+    static const AsrGuid name =                                                      \
+        {l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}};
 #else
 #define SWIG_IGNORE(x)
 #define SWIG_ENABLE_DIRECTOR(x)
@@ -30,6 +33,10 @@
     static const AsrGuid name =                                                \
         {l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}};                         \
     ASR_DEFINE_GUID_HOLDER(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8);
+#define ASR_DEFINE_CLASS_GUID(name, type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+    static const AsrGuid name =                                                      \
+        {l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}};                               \
+    ASR_DEFINE_CLASS_GUID_HOLDER(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8);
 #endif
 // clang-format on
 

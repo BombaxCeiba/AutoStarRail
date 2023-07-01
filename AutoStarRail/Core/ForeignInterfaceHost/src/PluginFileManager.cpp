@@ -27,7 +27,7 @@ std::vector<AsrResult> PluginFileManager::Refresh()
         if (std::wstring_view{extension.c_str()} == std::wstring_view{L"json"})
         {
             AsrResult     plugin_result{ASR_S_OK};
-            std::ifstream plugin_config_stream{it_path};
+            std::ifstream plugin_config_stream{it_path.string()};
             if (!plugin_config_stream.is_open())
             {
                 plugin_result = {};

@@ -15,16 +15,11 @@ private:
     ASR::Utils::RefCounter<AdbCapture> ref_counter_{};
 
 public:
-    AdbCapture(const AsrCaptureType& desc);
     ~AdbCapture() = default;
-    int64_t AddRef() override;
-    int64_t Release() override;
+    int64_t    AddRef() override;
+    int64_t    Release() override;
     ASR_METHOD QueryInterface(const AsrGuid& riid, void** ppvObject) override;
-    ASR_METHOD Capture(char** pp_rgba_data) override;
-    ASR_METHOD
-    GetAllAvailableCaptureType(const AsrCaptureType** p_type_array,
-                               unsigned int* count) override;
-    ASR_METHOD SetCaptureType(const unsigned int type) override;
+    ASR_METHOD Capture(IAsrImage** pp_out_image) override;
 };
 
 ASR_NS_END

@@ -53,13 +53,12 @@ namespace Details
 
 ASR_NS_END
 
-template <class T>
-struct AsrStringCpp
-{
-};
-
 void from_json(const nlohmann::json& from, AsrString& to);
 
+
+// {85648BDC-B73A-41F9-AF7A-71C83085C4B0}
+ASR_DEFINE_CLASS_GUID(ASR_IID_STRING_CPP_IMPL, AsrStringCppImpl,
+0x85648bdc, 0xb73a, 0x41f9, 0xaf, 0x7a, 0x71, 0xc8, 0x30, 0x85, 0xc4, 0xb0);
 /**
  * @brief 内部使用icu存储来自各个语言字符串的实现接口
  * ! 除了GetImpl()函数和后续声明的方法外，C++侧不应该调用任何其它方法

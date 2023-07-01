@@ -2,10 +2,12 @@
 #define ASR_ICAPTURE_H
 
 #include <AutoStarRail/IAsrBase.h>
+#include <AutoStarRail/AsrString.hpp>
+#include <memory>
 #include <cstddef>
 #include <cstdint>
 
-class IAsrReadOnlyString;
+ASR_INTERFACE IAsrImage;
 
 // {69A9BDB0-4657-45B6-8ECB-E4A8F0428E95}
 ASR_DEFINE_GUID(
@@ -25,14 +27,7 @@ ASR_DEFINE_GUID(
 SWIG_IGNORE(IAsrCapture)
 ASR_INTERFACE IAsrCapture : public IAsrBase
 {
-    /**
-     * @brief Capture rbga data.
-     *
-     * @param pp_rgba_data the caller will take memory ownership of this
-     * pointer.
-     * @return ASR_METHOD
-     */
-    ASR_METHOD Capture(char** pp_rgba_data) = 0;
+    ASR_METHOD Capture(IAsrImage * *pp_out_image) = 0;
 };
 
 // {35264072-8F42-46B5-99EA-3A83E0227CF9}
@@ -54,15 +49,48 @@ SWIG_IGNORE(IAsrCaptureFactory)
 ASR_INTERFACE IAsrCaptureFactory : public IAsrBase
 {
     /**
-     * @brief Create a Instance object
+     * @brief Create an instance
      *
-     * @param p_json_string
+     * @param p_json_config
      * @param pp_object
      * @return ASR_METHOD
      */
     ASR_METHOD CreateInstance(
-        IAsrReadOnlyString * p_json_string,
+        IAsrReadOnlyString * p_json_config,
         IAsrCapture * *pp_object);
 };
+
+ASR_INTERFACE IAsrSwigCaptureFactory;
+ASR_RET_TYPE_DECLARE_BEGIN(AsrRetCapture)
+    std::shared_ptr<IAsrSwigCaptureFactory> value;
+ASR_RET_TYPE_DECLARE_END
+
+ASR_INTERFACE IAsrSwigCaptureFactory
+{
+    virtual AsrRetCapture CreateInstance(AsrString json_config) = 0;
+};
+
+ASR_RET_TYPE_DECLARE_BEGIN(AsrRetImage)
+    std::shared_ptr<IAsrImage> value;
+ASR_RET_TYPE_DECLARE_END
+
+ASR_INTERFACE IAsrSwigCapture : public IAsrSwigBase
+{
+    virtual AsrRetImage Capture() = 0;
+};
+
+SWIG_IGNORE(CreateIAsrImage)
+ASR_C_API AsrResult CreateIAsrImage(
+    char**      pp_data,
+    size_t*     size,
+    bool*       p_out_is_pass_ownership,
+    IAsrImage** pp_out_image);
+
+SWIG_IGNORE(GetUserSpecifiedCaptureFactory)
+ASR_C_API AsrResult
+GetUserSpecifiedCaptureFactory(IAsrCaptureFactory** pp_out_factory);
+
+ASR_API std::shared_ptr<IAsrSwigCaptureFactory>
+        GetUserSpecifiedCaptureFactory();
 
 #endif // ASR_ICAPTURE_H

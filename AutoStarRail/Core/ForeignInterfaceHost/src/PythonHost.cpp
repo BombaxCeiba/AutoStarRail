@@ -1,13 +1,14 @@
 #ifdef ASR_EXPORT_PYTHON
 
 #include "PythonHost.h"
+#include <AutoStarRail/Utils/Utils.hpp>
+#include <AutoStarRail/Core/Logger/Logger.h>
+#include <AutoStarRail/Core/Exceptions/PythonException.h>
 #include <Python.h>
 #include <utility>
 #include <string_view>
 #include <stdexcept>
 #include <tuple>
-#include <AutoStarRail/Utils/Utils.hpp>
-#include <AutoStarRail/Core/Logger/Logger.h>
 
 static_assert(
     std::is_same_v<_object*, PyObject*>,
@@ -245,7 +246,7 @@ class PyInterpreter
                                     value_py_zero.Get());
                                 if (set_tuple_result == -1)
                                 {
-                                    // TODO: Throw exception.
+                                    throw ASR::Core::PythonException{""};
                                 }
                                 set_tuple_result = PyTuple_SetItem(
                                     arguments,

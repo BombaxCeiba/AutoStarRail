@@ -53,7 +53,13 @@ AsrGuid MakeAsrGuid(const std::string_view guid_string)
     std::memcpy(tmp_buffer.data(), guid_string.data(), 36);
     tmp_buffer[36] = '\0';
 
-    const auto err = std::sscanf(
+#ifdef _MSC_VER
+#define ASR_SSCANF ::sscanf_s
+#else
+#define ASR_SSCANF std::sscanf
+#endif // _MSC_VER
+
+    const auto err = ASR_SSCANF(
         guid_string.data(),
         "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX",
         &p0,
