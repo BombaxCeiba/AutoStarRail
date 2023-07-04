@@ -32,6 +32,9 @@
 #define ASR_TOKEN_PASTE_IMPL(x, y) x##y
 #define ASR_TOKEN_PASTE(x, y) ASR_TOKEN_PASTE_IMPL(x, y)
 
+#define ASR_WSTR(x) ASR_WSTR_IMPL(x)
+#define ASR_WSTR_IMPL(x) L##x
+
 #define ASR_USTR(x) ASR_USTR_IMPL(x)
 #define ASR_USTR_IMPL(x) u##x
 

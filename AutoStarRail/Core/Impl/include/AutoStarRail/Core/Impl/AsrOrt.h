@@ -38,7 +38,6 @@
 
 #include <AutoStarRail/Core/Impl/Config.h>
 #include <AutoStarRail/AsrString.hpp>
-#include <Boost/predef/os.h>
 
 ASR_CORE_IMPL_NS_BEGIN
 

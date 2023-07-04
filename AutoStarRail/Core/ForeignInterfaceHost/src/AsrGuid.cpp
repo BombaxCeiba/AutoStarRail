@@ -5,7 +5,7 @@
 #include <cstring>
 #include <nlohmann/json.hpp>
 
-auto std::formatter<AsrGuid, char>::format(
+auto ASR_FMT_NS::formatter<AsrGuid, char>::format(
     const AsrGuid&  guid,
     format_context& ctx) const ->
     typename std::remove_reference_t<decltype(ctx)>::iterator
@@ -13,8 +13,8 @@ auto std::formatter<AsrGuid, char>::format(
     constexpr auto template_string =
         "{{{:08x}-{:04x}-{:04x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}}}";
 
-    return formatter<string>::format(
-        std::format(
+    return formatter<std::string>::format(
+        ASR::fmt::format(
             template_string,
             guid.data1,
             guid.data2,
@@ -35,7 +35,7 @@ ASR_CORE_FOREIGNINTERFACEHOST_NS_BEGIN
 AsrGuid MakeAsrGuid(const std::string_view guid_string)
 {
     AsrGuid       result;
-    unsigned long p0;
+    unsigned int p0;
     static_assert(sizeof(p0) == sizeof(result.data1), "p0 type not match.");
     unsigned short p1, p2;
     static_assert(sizeof(p1) == sizeof(result.data2), "p1 type not match.");
@@ -61,7 +61,7 @@ AsrGuid MakeAsrGuid(const std::string_view guid_string)
 
     const auto err = ASR_SSCANF(
         guid_string.data(),
-        "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX",
+        "%08X-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX",
         &p0,
         &p1,
         &p2,
@@ -105,7 +105,7 @@ AsrString AsrGuidToString(const AsrGuid& guid)
 {
     constexpr auto template_string =
         "{:08x}-{:04x}-{:04x}-{:02x}{:02x}-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}";
-    const auto string = std::format(
+    const auto string = ASR::fmt::format(
         template_string,
         guid.data1,
         guid.data2,

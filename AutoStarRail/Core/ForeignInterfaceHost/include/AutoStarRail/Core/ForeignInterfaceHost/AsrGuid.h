@@ -5,11 +5,10 @@
 #include <AutoStarRail/Core/ForeignInterfaceHost/Config.h>
 #include <AutoStarRail/Core/Exceptions/InvalidGuidStringException.h>
 #include <nlohmann/json_fwd.hpp>
-#include <format>
+#include <AutoStarRail/Utils/fmt.h>
 
-namespace std
-{
-    template <>
+namespace ASR_FMT_NS {
+template <>
     struct formatter<AsrGuid, char> : public formatter<std::string, char>
     {
         auto format(const AsrGuid& guid, format_context& ctx) const ->

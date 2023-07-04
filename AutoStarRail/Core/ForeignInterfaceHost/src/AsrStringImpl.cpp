@@ -1,6 +1,11 @@
+#include "AutoStarRail/AsrConfig.h"
 #include <AutoStarRail/Core/ForeignInterfaceHost/AsrStringImpl.h>
 #include <AutoStarRail/Utils/Utils.hpp>
 #include <AutoStarRail/Utils/IAsrBaseAdapterUtils.h>
+#include <cstddef>
+#include <functional>
+#include <unicode/unistr.h>
+#include <unicode/uversion.h>
 #include <vector>
 #include <cwchar>
 #include <algorithm>
@@ -106,21 +111,25 @@ AsrResult AsrStringCppImpl::GetUtf16(
     return ASR_S_OK;
 }
 
-AsrResult AsrStringCppImpl::SetSwigW(const wchar_t* p_string)
+ASR_NS_ANONYMOUS_DETAILS_BEGIN
+
+template<class T>
+auto SetSwigW(const T* p_wstring, auto&& shadow_impl)
+    -> U_NAMESPACE_QUALIFIER UnicodeString
 {
-    InvalidateCache();
+    U_NAMESPACE_QUALIFIER UnicodeString result;
     if constexpr (sizeof(wchar_t) == sizeof(char16_t))
     {
-        impl_ = {p_string};
+        result = {p_wstring};
     }
-    if constexpr (sizeof(wchar_t) == sizeof(char32_t))
+    else if constexpr (sizeof(wchar_t) == sizeof(char32_t))
     {
-        const auto string_size = std::wcslen(p_string);
+        const auto string_size = std::wcslen(p_wstring);
         const auto p_shadow_string =
-            shadow_impl_.DiscardAndGetNullTerminateBufferPointer(string_size);
+            shadow_impl.DiscardAndGetNullTerminateBufferPointer(string_size);
         std::transform(
-            p_string,
-            p_string + string_size,
+            p_wstring,
+            p_wstring + string_size,
             p_shadow_string,
             [](const wchar_t c)
             {
@@ -130,32 +139,59 @@ AsrResult AsrStringCppImpl::SetSwigW(const wchar_t* p_string)
                 return result;
             });
         const auto int_length = static_cast<int>(string_size);
-        impl_ = {p_shadow_string, int_length, int_length};
+        result = {p_shadow_string, int_length, int_length};
     }
+    return result;
+}
+
+template<class T>
+auto SetW(const T* p_wstring, size_t length, auto&& cached_utf32_string, auto validate_u32_cache) 
+    -> U_NAMESPACE_QUALIFIER UnicodeString 
+{
+    const auto int_length = static_cast<int>(length);
+    U_NAMESPACE_QUALIFIER UnicodeString result;
+
+    if constexpr (sizeof(wchar_t) == sizeof(char16_t))
+    {
+        result = {p_wstring, int_length};
+    }
+    else if constexpr (sizeof(wchar_t) == sizeof(char32_t))
+    {
+        result = U_NAMESPACE_QUALIFIER UnicodeString::fromUTF32(
+            (reinterpret_cast<const UChar32*>(p_wstring)),
+            int_length);
+
+        const auto p_cached_u32string =
+            cached_utf32_string.DiscardAndGetNullTerminateBufferPointer(
+                length);
+        std::memcpy(p_cached_u32string, p_wstring, length * sizeof(UChar32));
+        validate_u32_cache();
+    }
+
+    return result;
+}
+
+ASR_NS_ANONYMOUS_DETAILS_END
+
+AsrResult AsrStringCppImpl::SetSwigW(const wchar_t* p_string)
+{
+    InvalidateCache();
+
+    impl_ = Details::SetSwigW(p_string, shadow_impl_);
+
     return ASR_S_OK;
 }
 
 AsrResult AsrStringCppImpl::SetW(const wchar_t* p_string, size_t length)
 {
     InvalidateCache();
-    const auto int_length = static_cast<int>(length);
 
-    if constexpr (sizeof(wchar_t) == sizeof(char16_t))
-    {
-        impl_ = {p_string, int_length};
-    }
-    if constexpr (sizeof(wchar_t) == sizeof(char32_t))
-    {
-        impl_ = U_NAMESPACE_QUALIFIER UnicodeString::fromUTF32(
-            (reinterpret_cast<const UChar32*>(p_string)),
-            int_length);
+    impl_ = Details::SetW(
+        p_string, 
+        length, 
+        cached_utf32_string_, 
+    [this](){ValidateCache<Encode::U32>();});
 
-        const auto p_cached_u32string =
-            cached_utf32_string_.DiscardAndGetNullTerminateBufferPointer(
-                length);
-        std::memcpy(p_cached_u32string, p_string, length * sizeof(UChar32));
-        ValidateCache<Encode::U32>();
-    }
     return ASR_S_OK;
 }
 
