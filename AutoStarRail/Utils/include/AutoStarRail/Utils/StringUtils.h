@@ -8,17 +8,19 @@
 #include <type_traits>
 #include <vector>
 
-#define ASR_UTILS_STRINGUTILS_COMPARE_STRING(var, string_literals) \
-[&var]()->bool{\
-const auto rhs = string_literals;\
-const auto w_rhs = ASR_WSTR(string_literals);\
-return ASR::Utils::Compare(var, std::make_tuple(rhs, w_rhs));\
-}()
+#define ASR_UTILS_STRINGUTILS_COMPARE_STRING(var, string_literals)             \
+    [&var]() -> bool                                                           \
+    {                                                                          \
+        constexpr auto rhs = string_literals;                                  \
+        constexpr auto w_rhs = ASR_WSTR(string_literals);                      \
+        return ASR::Utils::Compare(var, std::make_tuple(rhs, w_rhs));          \
+    }()
 
 ASR_UTILS_NS_BEGIN
 
-template<class T>
-bool Compare(const T* lhs, std::tuple<const char*, const wchar_t*> rhs){
+template <class T>
+bool Compare(const T* lhs, std::tuple<const char*, const wchar_t*> rhs)
+{
     const auto lhs_view = std::basic_string_view<T>{lhs};
     const auto rhs_value = std::get<const T*>(rhs);
     const auto rhs_view = decltype(lhs_view){rhs_value};

@@ -119,7 +119,7 @@ AsrString AsrGuidToString(const AsrGuid& guid)
         guid.data4[6],
         guid.data4[7]);
 
-    ASR::AsrPtr<IAsrString> p_result;
-    ::CreateIAsrStringFromUtf8(string.c_str(), p_result.Put());
+    IAsrString* p_result;
+    ::CreateIAsrStringFromUtf8(string.c_str(), &p_result);
     return AsrString{p_result};
 }

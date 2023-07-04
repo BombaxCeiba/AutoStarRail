@@ -59,7 +59,7 @@ if(${BUILD_QT5_GUI})
 endif()
 
 # config magic_enum
-message(STATUS "Downloading and configuring maginc enum.")
+message(STATUS "Downloading and configuring magic enum.")
 FetchContent_Declare(
     MagicEnum
     URL "${GITHUB_MIRROR_URL}/Neargye/magic_enum/archive/refs/tags/v0.8.2.zip"

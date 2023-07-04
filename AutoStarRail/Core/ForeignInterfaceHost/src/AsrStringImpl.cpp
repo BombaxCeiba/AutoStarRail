@@ -39,7 +39,8 @@ AsrStringCppImpl::AsrStringCppImpl(
 {
 }
 
-AsrStringCppImpl::AsrStringCppImpl(U_NAMESPACE_QUALIFIER UnicodeString&& impl) noexcept
+AsrStringCppImpl::AsrStringCppImpl(
+    U_NAMESPACE_QUALIFIER UnicodeString&& impl) noexcept
     : impl_{std::move(impl)}
 {
 }
@@ -113,8 +114,8 @@ AsrResult AsrStringCppImpl::GetUtf16(
 
 ASR_NS_ANONYMOUS_DETAILS_BEGIN
 
-template<class T>
-auto SetSwigW(const T* p_wstring, auto&& shadow_impl)
+template <class T>
+auto SetSwigW(const T* p_wstring, const auto& shadow_impl)
     -> U_NAMESPACE_QUALIFIER UnicodeString
 {
     U_NAMESPACE_QUALIFIER UnicodeString result;
@@ -133,10 +134,10 @@ auto SetSwigW(const T* p_wstring, auto&& shadow_impl)
             p_shadow_string,
             [](const wchar_t c)
             {
-                char16_t result;
+                char16_t u16_char;
                 // Can be replaced to std::bit_cast
-                std::memcpy(&result, &c, sizeof(result));
-                return result;
+                std::memcpy(&u16_char, &c, sizeof(u16_char));
+                return u16_char;
             });
         const auto int_length = static_cast<int>(string_size);
         result = {p_shadow_string, int_length, int_length};
@@ -144,11 +145,14 @@ auto SetSwigW(const T* p_wstring, auto&& shadow_impl)
     return result;
 }
 
-template<class T>
-auto SetW(const T* p_wstring, size_t length, auto&& cached_utf32_string, auto validate_u32_cache) 
-    -> U_NAMESPACE_QUALIFIER UnicodeString 
+template <class T>
+auto SetW(
+    const T*    p_wstring,
+    size_t      length,
+    const auto& cached_utf32_string,
+    auto        validate_u32_cache) -> U_NAMESPACE_QUALIFIER UnicodeString
 {
-    const auto int_length = static_cast<int>(length);
+    const auto                          int_length = static_cast<int>(length);
     U_NAMESPACE_QUALIFIER UnicodeString result;
 
     if constexpr (sizeof(wchar_t) == sizeof(char16_t))
@@ -162,8 +166,7 @@ auto SetW(const T* p_wstring, size_t length, auto&& cached_utf32_string, auto va
             int_length);
 
         const auto p_cached_u32string =
-            cached_utf32_string.DiscardAndGetNullTerminateBufferPointer(
-                length);
+            cached_utf32_string.DiscardAndGetNullTerminateBufferPointer(length);
         std::memcpy(p_cached_u32string, p_wstring, length * sizeof(UChar32));
         validate_u32_cache();
     }
@@ -187,10 +190,10 @@ AsrResult AsrStringCppImpl::SetW(const wchar_t* p_string, size_t length)
     InvalidateCache();
 
     impl_ = Details::SetW(
-        p_string, 
-        length, 
-        cached_utf32_string_, 
-    [this](){ValidateCache<Encode::U32>();});
+        p_string,
+        length,
+        cached_utf32_string_,
+        [this]() { ValidateCache<Encode::U32>(); });
 
     return ASR_S_OK;
 }

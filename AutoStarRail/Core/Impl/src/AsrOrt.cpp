@@ -1,11 +1,12 @@
 #include <AutoStarRail/Core/Impl/AsrOrt.h>
 #include <AutoStarRail/AsrString.hpp>
+#include <boost/predef/os.h>
 
 ASR_CORE_IMPL_NS_BEGIN
 
 const ORTCHAR_T* ToOrtChar(AsrString string)
 {
-#if (WIN32)
+#if (BOOST_OS_WINDOWS)
     return string.GetW();
 #else
     return string.GetUtf8();
