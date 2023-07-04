@@ -18,7 +18,7 @@ check_cxx_source_runs("
     constexpr char u8_string[] = u8\"test\";
     std::cout << u8_string;
     return 0;
-  }" ASR_HAVE_P2513R4_SUPPORT)
+  }" ASR_P2513R4_SUPPORT)
 
 set(CMAKE_REQUIRED_FLAGS ${ASR_OLD_REQUIRED_FLAGS})
 
@@ -28,13 +28,7 @@ target_compile_options(AsrCoreObjects PRIVATE
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
 set_property(TARGET AsrCoreObjects PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-if(NOT ASR_HAVE_P2513R4_SUPPORT)
-    target_compile_options(AsrCoreObjects PRIVATE
-        $<$<CXX_COMPILER_ID:MSVC>:/Zc:char8_t->
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fno-char8_t>)
-endif()
-
+target_compile_definitions(AsrCoreObjects PRIVATE -DASR_P2513R4_SUPPORT=${ASR_P2513R4_SUPPORT})
 target_compile_definitions(AsrCoreObjects PRIVATE -DASR_BUILD_SHARED)
 target_link_libraries(AsrCoreObjects PUBLIC
     Boost::filesystem

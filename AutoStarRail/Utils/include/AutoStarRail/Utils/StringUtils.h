@@ -16,13 +16,34 @@
         return ASR::Utils::Compare(var, std::make_tuple(rhs, w_rhs));          \
     }()
 
+#if ASR_P2513R4_SUPPORT
+#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR(string_literals)                    \
+    []() noexcept                                                              \
+    {                                                                          \
+        const static char _asr_internal_result[] = ASR_U8STR(string_literals); \
+        return _asr_internal_result;                                           \
+    }()
+#else
+#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR(string_literals)                    \
+    []() noexcept                                                              \
+    {                                                                          \
+        const static char _asr_internal_result[] = ASR_U8STR(string_literals); \
+        return reinterpret_cast<const char*>(_asr_internal_result);            \
+    }()
+#endif // ASR_HAVE_P2513R4_SUPPORT
+
 ASR_UTILS_NS_BEGIN
 
 template <class T>
-bool Compare(const T* lhs, std::tuple<const char*, const wchar_t*> rhs)
+concept is_method_c_str_existence = requires(const T& t) { t.c_str(); };
+
+template <is_method_c_str_existence T>
+bool Compare(const T& lhs, std::tuple<const char*, const wchar_t*> rhs)
 {
-    const auto lhs_view = std::basic_string_view<T>{lhs};
-    const auto rhs_value = std::get<const T*>(rhs);
+    using CharT = std::remove_cv_t<
+        std::remove_reference_t<std::remove_pointer_t<decltype(lhs.c_str())>>>;
+    const auto lhs_view = std::basic_string_view<CharT>{lhs.c_str()};
+    const auto rhs_value = std::get<const CharT*>(rhs);
     const auto rhs_view = decltype(lhs_view){rhs_value};
     return lhs_view == rhs_view;
 }

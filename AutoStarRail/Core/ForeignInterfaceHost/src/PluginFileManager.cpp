@@ -25,8 +25,7 @@ std::vector<AsrResult> PluginFileManager::Refresh()
     {
         const auto& it_path = it.path();
         const auto  extension = it.path().extension();
-        const auto extension_string = extension.c_str();
-        if (ASR_UTILS_STRINGUTILS_COMPARE_STRING(extension_string, "json"))
+        if (ASR_UTILS_STRINGUTILS_COMPARE_STRING(extension, "json"))
         {
             AsrResult plugin_result{ASR_S_OK};
 
@@ -47,14 +46,8 @@ std::vector<AsrResult> PluginFileManager::Refresh()
                 const auto up_plugin_desc =
                     std::make_unique<PluginDesc>(config.get<PluginDesc>());
 
-                /**
-                 * @brief allowed after P2513R4 C++23 (DR C++20)
-                 *      Need GCC13 OR Clang 16 OR MSVC 19.34
-                 * @see https://wg21.link/P2513R4
-                 *
-                 */
-                constexpr char CURRENT_PLATFORM[] =
-                    ASR_U8STR(ASR_STR(ASR_PLATFORM));
+                const auto CURRENT_PLATFORM =
+                    ASR_UTILS_STRINGUTILS_DEFINE_U8STR(ASR_STR(ASR_PLATFORM));
 
                 if (up_plugin_desc->supported_system.find_first_of(
                         CURRENT_PLATFORM)

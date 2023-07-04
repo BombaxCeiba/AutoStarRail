@@ -115,7 +115,7 @@ AsrResult AsrStringCppImpl::GetUtf16(
 ASR_NS_ANONYMOUS_DETAILS_BEGIN
 
 template <class T>
-auto SetSwigW(const T* p_wstring, const auto& shadow_impl)
+auto SetSwigW(const T* p_wstring, auto& shadow_impl)
     -> U_NAMESPACE_QUALIFIER UnicodeString
 {
     U_NAMESPACE_QUALIFIER UnicodeString result;
@@ -147,10 +147,10 @@ auto SetSwigW(const T* p_wstring, const auto& shadow_impl)
 
 template <class T>
 auto SetW(
-    const T*    p_wstring,
-    size_t      length,
-    const auto& cached_utf32_string,
-    auto        validate_u32_cache) -> U_NAMESPACE_QUALIFIER UnicodeString
+    const T* p_wstring,
+    size_t   length,
+    auto&    cached_utf32_string,
+    auto     validate_u32_cache) -> U_NAMESPACE_QUALIFIER UnicodeString
 {
     const auto                          int_length = static_cast<int>(length);
     U_NAMESPACE_QUALIFIER UnicodeString result;
