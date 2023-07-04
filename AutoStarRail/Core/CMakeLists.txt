@@ -28,7 +28,13 @@ target_compile_options(AsrCoreObjects PRIVATE
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
 set_property(TARGET AsrCoreObjects PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_compile_definitions(AsrCoreObjects PRIVATE -DASR_P2513R4_SUPPORT=${ASR_P2513R4_SUPPORT})
+
+if(ASR_P2513R4_SUPPORT)
+    target_compile_definitions(AsrCoreObjects PRIVATE -DASR_P2513R4_SUPPORT=1)
+else()
+    target_compile_definitions(AsrCoreObjects PRIVATE -DASR_P2513R4_SUPPORT=0)
+endif()
+
 target_compile_definitions(AsrCoreObjects PRIVATE -DASR_BUILD_SHARED)
 target_link_libraries(AsrCoreObjects PUBLIC
     Boost::filesystem

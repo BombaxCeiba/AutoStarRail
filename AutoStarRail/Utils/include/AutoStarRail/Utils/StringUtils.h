@@ -24,11 +24,11 @@
         return _asr_internal_result;                                           \
     }()
 #else
-#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR(string_literals)                    \
-    []() noexcept                                                              \
-    {                                                                          \
-        const static char _asr_internal_result[] = ASR_U8STR(string_literals); \
-        return reinterpret_cast<const char*>(_asr_internal_result);            \
+#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR(string_literals)                       \
+    []() noexcept                                                                 \
+    {                                                                             \
+        const static char8_t _asr_internal_result[] = ASR_U8STR(string_literals); \
+        return reinterpret_cast<const char*>(_asr_internal_result);               \
     }()
 #endif // ASR_HAVE_P2513R4_SUPPORT
 
