@@ -2,7 +2,7 @@ add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
 
 aux_source_directory(Utils/src ASR_UTILS_SOURCES)
 add_library(AsrUtils STATIC ${ASR_UTILS_SOURCES})
-set_property(TARGET AsrUtils PROPERTY POSITION_INDENDENT_CODE ON)
+set_property(TARGET AsrUtils PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(AsrUtils PUBLIC Utils/include)
 target_link_libraries(AsrUtils PUBLIC Asr3rdParty)
 

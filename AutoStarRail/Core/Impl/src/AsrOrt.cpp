@@ -5,7 +5,7 @@ ASR_CORE_IMPL_NS_BEGIN
 
 const ORTCHAR_T* ToOrtChar(AsrString string)
 {
-#if (ASR_PLATFORM == ASR_CORE_IMPL_INTERNAL_WINDOWS)
+#if (WIN32)
     return string.GetW();
 #else
     return string.GetUtf8();

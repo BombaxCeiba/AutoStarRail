@@ -1,6 +1,5 @@
 #include "Plugin.h"
 #include "ForeignInterfaceHost.h"
-#include <format>
 
 ASR_CORE_FOREIGNINTERFACEHOST_NS_BEGIN
 

@@ -6,7 +6,7 @@ target_compile_options(AsrCoreObjects PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
-set_property(TARGET AsrCoreObjects PROPERTY POSITION_INDENDENT_CODE ON)
+set_property(TARGET AsrCoreObjects PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(AsrCoreObjects PRIVATE -DASR_BUILD_SHARED)
 target_link_libraries(AsrCoreObjects PUBLIC
     Boost::filesystem
@@ -49,7 +49,7 @@ if(${BUILD_TEST})
     add_dependencies(AsrStaticCore libAsrCore)
 endif()
 
-add_compile_definitions(-DASR_BUILD_SHARED)
+add_compile_definitions(ASR_BUILD_SHARED)
 
 # 配置导出库
 set(ASR_EXPORT_MACRO_LIST "")
@@ -91,8 +91,6 @@ if(${EXPORT_PYTHON})
     add_dependencies(libAsrCorePythonExport libAsrCore)
     list(APPEND ASR_EXPORT_MACRO_LIST ASR_EXPORT_PYTHON)
 endif()
-
-cmake_policy(SET CMP0135 NEW)
 
 # FetchContent_Declare(
 # Sol2

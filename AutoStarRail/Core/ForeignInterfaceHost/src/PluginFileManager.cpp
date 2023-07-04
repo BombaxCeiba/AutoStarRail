@@ -25,7 +25,8 @@ std::vector<AsrResult> PluginFileManager::Refresh()
     {
         const auto& it_path = it.path();
         const auto  extension = it.path().extension();
-        if (std::wstring_view{extension.c_str()} == std::wstring_view{L"json"})
+        const auto extension_string = extension.c_str();
+        if (ASR_UTILS_STRINGUTILS_COMPARE_STRING(extension_string, "json"))
         {
             AsrResult plugin_result{ASR_S_OK};
 

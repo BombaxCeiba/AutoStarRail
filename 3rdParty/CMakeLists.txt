@@ -41,6 +41,7 @@ add_library(Asr3rdParty INTERFACE)
 
 # config GoogleTest
 # GoogleTest requires at least C++14
+message(STATUS "Downloading and configuring google test.")
 FetchContent_Declare(
     googletest
     URL ${GITHUB_MIRROR_URL}/google/googletest/archive/refs/tags/v1.13.0.tar.gz
@@ -53,10 +54,12 @@ FetchContent_MakeAvailable(googletest)
 
 # config QT5
 if(${BUILD_QT5_GUI})
+    message(STATUS "Option BUILD_QT5_GUI=ON. Qt5 is required.")
     find_package(Qt5 COMPONENTS Widgets Qml Quick REQUIRED)
 endif()
 
 # config magic_enum
+message(STATUS "Downloading and configuring maginc enum.")
 FetchContent_Declare(
     MagicEnum
     URL "${GITHUB_MIRROR_URL}/Neargye/magic_enum/archive/refs/tags/v0.8.2.zip"
@@ -65,11 +68,26 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(MagicEnum)
 target_link_libraries(Asr3rdParty INTERFACE magic_enum::magic_enum)
 
+if(ASR_USE_BUNDLIED_FMT)
+    message(STATUS "Downloading and configuring fmt.")
+    FetchContent_Declare(
+        Asrfmt
+        URL "${GITHUB_MIRROR_URL}/fmtlib/fmt/releases/download/10.0.0/fmt-10.0.0.zip")
+    FetchContent_MakeAvailable(Asrfmt)
+    set_target_properties(fmt PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    target_link_libraries(Asr3rdParty INTERFACE fmt::fmt)
+    target_compile_definitions(Asr3rdParty INTERFACE -DASR_USE_STD_FMT=0)
+else()
+    target_compile_definitions(Asr3rdParty INTERFACE -DASR_USE_STD_FMT=1)
+endif()
+
 # config spdlog
+message(STATUS "Downloading and configuring spdlog.")
 FetchContent_Declare(
     spdlog
-    URL "${GITHUB_MIRROR_URL}/gabime/spdlog/archive/refs/tags/v1.11.0.zip"
-)
+    URL "${GITHUB_MIRROR_URL}/gabime/spdlog/archive/refs/tags/v1.11.0.zip")
+
+set(SPDLOG_BUILD_PIC ON)
 
 if(ASR_SPDLOG_USE_STD_FMT)
     set(SPDLOG_USE_STD_FORMAT ON)
@@ -83,18 +101,13 @@ endif()
 FetchContent_MakeAvailable(spdlog)
 target_link_libraries(Asr3rdParty INTERFACE spdlog::spdlog)
 
-find_package(Eigen3 3.4 NO_MODULE)
+function(_download_and_config_opencv)
+    message(STATUS "Downloading OpenCV source.")
 
-if(NOT Eigen3_FOUND)
-    message("Downloading Eigen3.4...")
-    FetchContent_Declare(AsrEigen3
-        URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip)
-    FetchContent_MakeAvailable(AsrEigen3)
-    find_package(Eigen3 3.4 NO_MODULE)
-endif()
+    # NOTICE: OpenCV wil turn this option ON automically, so I explicitly set it.
+    set(BUILD_SHARED_LIBS ON)
 
-macro(_download_and_config_opencv)
-    message("OpenCV not found. Downloading OpenCV source.")
+    include(AsrResetLibPrefix)
 
     FetchContent_Declare(
         OpenCV48
@@ -119,7 +132,6 @@ macro(_download_and_config_opencv)
     set(BUILD_opencv_video OFF)
     set(BUILD_opencv_videoio OFF)
     set(BUILD_opencv_world OFF)
-    set(WITH_EIGEN ON)
     set(WITH_OPENCL OFF)
     set(BUILD_opencv_python_bindings_generator OFF)
     set(BUILD_opencv_python_test OFF)
@@ -130,13 +142,39 @@ macro(_download_and_config_opencv)
     set(BUILD_opencv_ts OFF)
 
     FetchContent_MakeAvailable(OpenCV48)
-    target_link_libraries(Asr3rdParty INTERFACE opencv_core opencv_imgproc)
-endmacro()
-
-# NOTICE: OpenCV wil turn this option ON automically, so I explicitly set it.
-set(BUILD_SHARED_LIBS ON)
+    list(APPEND ASR_OPENCV_COMPONENTS opencv_core opencv_imgproc)
+    set_target_properties(${ASR_OPENCV_COMPONENTS} PROPERTIES PREFIX ${ASR_LIB_PREFIX})
+    target_link_libraries(Asr3rdParty INTERFACE ${ASR_OPENCV_COMPONENTS})
+endfunction()
 
 if(ASR_USE_BUNDLIED_OPENCV)
+    if(ASR_USE_BUNDLIED_OPENCV)
+        if(${ASR_USE_BUNDLIED_EIGEN})
+            message(STATUS "Downloading Eigen3.4...")
+            FetchContent_Declare(AsrEigen3
+                URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip)
+            FetchContent_MakeAvailable(AsrEigen3)
+            set(WITH_EIGEN ON)
+        else()
+            find_package(Eigen3 3.4 NO_MODULE)
+
+            if(NOT Eigen3_FOUND)
+                set(WITH_EIGEN ON)
+            else()
+                set(WITH_EIGEN OFF)
+            endif()
+        endif()
+
+        _download_and_config_opencv()
+    else()
+        find_package(OpenCV 4.8)
+
+        if(NOT OpenCV_FOUND)
+            target_link_libraries(Asr3rdParty INTERFACE ${OpenCV_LIBS})
+        else()
+            message(FATAL_ERROR "OpenCV not found. Please install it manually or set ASR_USE_BUNDLIED_OPENCV=ON.")
+        endif()
+    endif()
     _download_and_config_opencv()
 else()
     find_package(OpenCV 4.8)
@@ -149,7 +187,7 @@ else()
 endif()
 
 function(_on_download_icu)
-    message("Downloading prebuilt icu binary.")
+    message("Downloading prebuilt icu binary...")
 endfunction()
 
 if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -222,7 +260,11 @@ endif()
 find_package(ICU COMPONENTS data i18n uc REQUIRED)
 
 function(_download_and_config_boost)
-    message("Downloading and confing boost 1.82.")
+    message("Downloading and configuring boost 1.82.")
+
+    # set(BUILD_SHARED_LIBS ON)
+    set(BUILD_TESTING OFF)
+
     FetchContent_Declare(
         AsrBoost
         URL ${GITHUB_MIRROR_URL}/boostorg/boost/releases/download/boost-1.82.0/boost-1.82.0.7z
@@ -235,9 +277,7 @@ function(_download_and_config_boost)
     # set(BOOST_STACKTRACE_ENABLE_WINDBG OFF)
 
     # Avoid error: "LINK : fatal error LNK1104: 无法打开文件“zlib.obj”
-    if(MSVC)
-        set(BOOST_IOSTREAMS_ENABLE_ZLIB OFF)
-    endif()
+    set(BOOST_IOSTREAMS_ENABLE_ZLIB OFF)
 
     # Fix error: .../libs/asio/include/boost/asio/detail/impl/winsock_init.ipp:39: undefined reference to `__imp_WSAStartup'
     if(WIN32)
@@ -245,6 +285,8 @@ function(_download_and_config_boost)
     endif()
 
     FetchContent_MakeAvailable(AsrBoost)
+
+    set_target_properties(boost_filesystem PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endfunction()
 
 if(${ASR_USE_BUNDLIED_BOOST})
@@ -263,6 +305,7 @@ endif()
 
 # config Nlohnmann Json
 # Notice: This library assume string is encoded in UTF-8.
+message("Downloading and configuring nlohmann json.")
 FetchContent_Declare(
     NlohnmannJson
     URL ${GITHUB_MIRROR_URL}/nlohmann/json/archive/refs/tags/v3.11.2.tar.gz)
@@ -303,6 +346,7 @@ function(_download_and_config_onnxruntime TARGET_NAME URL)
 endfunction()
 
 if(NOT onnxruntime_FOUND)
+    message("Downloading prebuilt onnxruntime binary...")
     if(WIN32)
         if(${PROCESSOR_ARCHITECTURE} MATCHES "ARM64")
             # arm64
