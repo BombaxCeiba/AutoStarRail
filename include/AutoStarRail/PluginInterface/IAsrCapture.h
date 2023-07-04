@@ -61,8 +61,13 @@ ASR_INTERFACE IAsrCaptureFactory : public IAsrBase
 };
 
 ASR_INTERFACE IAsrSwigCaptureFactory;
-ASR_RET_TYPE_DECLARE_BEGIN(AsrRetCapture)
+ASR_RET_TYPE_DECLARE_BEGIN(AsrRetCaptureFactory)
     std::shared_ptr<IAsrSwigCaptureFactory> value;
+ASR_RET_TYPE_DECLARE_END
+
+ASR_INTERFACE IAsrSwigCapture;
+ASR_RET_TYPE_DECLARE_BEGIN(AsrRetCapture)
+    std::shared_ptr<IAsrSwigCapture> value;
 ASR_RET_TYPE_DECLARE_END
 
 ASR_INTERFACE IAsrSwigCaptureFactory

@@ -6,7 +6,7 @@
 #include <AutoStarRail/Core/Exceptions/InterfaceNotFoundException.h>
 #include <AutoStarRail/AsrPtr.hpp>
 #include <AutoStarRail/Utils/Utils.hpp>
-#include "AutoStarRail/IAsrBase.h"
+#include <AutoStarRail/IAsrBase.h>
 #include "ForeignInterfaceHostEnum.h"
 #include "IForeignLanguageRuntime.h"
 #include <stdexcept>

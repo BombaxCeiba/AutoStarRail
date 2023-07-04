@@ -34,7 +34,7 @@ AsrStringCppImpl::AsrStringCppImpl(
 {
 }
 
-AsrStringCppImpl::AsrStringCppImpl(U_NAMESPACE_QUALIFIER UnicodeString&& impl)
+AsrStringCppImpl::AsrStringCppImpl(U_NAMESPACE_QUALIFIER UnicodeString&& impl) noexcept
     : impl_{std::move(impl)}
 {
 }

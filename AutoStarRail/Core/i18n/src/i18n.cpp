@@ -1,5 +1,6 @@
 #include <AutoStarRail/Core/i18n/i18n.h>
 #include <AutoStarRail/Utils/EnumUtils.hpp>
+#include <AutoStarRail/Utils/StreamUtils.hpp>
 #include <nlohmann/json.hpp>
 #include <string_view>
 #include <fstream>
@@ -79,10 +80,12 @@ template <class T>
 I18n<T>::I18n(const boost::filesystem::path& json_path)
 {
     std::ifstream ifs{};
-    ifs.exceptions(std::ios::badbit | std::ios::failbit);
-    ifs.open(json_path.string());
+    ASR::Utils::EnableStreamException(
+        ifs,
+        std::ios::badbit | std::ios::failbit,
+        [&json_path](auto& stream) { stream.open(json_path.c_str()); });
     const auto json = ::nlohmann::json::parse(ifs);
-    translate_resource_ = json.get<decltype(translate_resource_)>();
+    json.get_to(translate_resource_);
 
     SetDefaultLocale(u8"en");
 }

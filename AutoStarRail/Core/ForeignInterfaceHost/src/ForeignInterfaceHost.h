@@ -36,6 +36,7 @@ void from_json(const ::nlohmann::json& input, PluginSettingDesc& output);
 
 struct PluginDesc
 {
+    int32_t plugin_metadata_version;
     std::string name;
     std::string author;
     std::string version;

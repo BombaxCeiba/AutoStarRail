@@ -26,9 +26,15 @@ ASR_DEFINE_GUID(
     0xab,
     0x36)
 SWIG_IGNORE(IAsrPlugin)
+/**
+ * @brief plugin should define AsrResult AsrCoCreateInterface(IAsrPlugin** pp_out_plugin);
+ *
+ */
 ASR_INTERFACE IAsrPlugin : public IAsrBase
 {
-    ASR_METHOD EnumFeature(const size_t index, AsrPluginFeature * p_out_feature) = 0;
+    ASR_METHOD EnumFeature(
+        const size_t      index,
+        AsrPluginFeature* p_out_feature) = 0;
     ASR_METHOD GetInterface(
         const AsrGuid& feature_iid,
         IAsrBase**     pp_out_feature_interface) = 0;
@@ -62,8 +68,16 @@ SWIG_ENABLE_SHARED_PTR(IAsrSwigPlugin)
 ASR_INTERFACE IAsrSwigPlugin : public IAsrSwigBase
 {
     virtual AsrRetPluginFeature EnumFeature(const size_t index) = 0;
-    virtual AsrRetSwigBase GetInterface(const AsrGuid& feature_iid) = 0;
+    virtual AsrRetSwigBase      GetInterface(const AsrGuid& feature_iid) = 0;
     virtual ~IAsrSwigPlugin() override = default;
 };
+
+/**
+ * @brief Plugin should define AsrRetPlugin AsrCoCreateInterface()
+ *
+ */
+ASR_RET_TYPE_DECLARE_BEGIN(AsrRetPlugin)
+    std::shared_ptr<IAsrSwigPlugin> value;
+ASR_RET_TYPE_DECLARE_END
 
 #endif // ASR_IPLUGIN_H
