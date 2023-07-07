@@ -3,7 +3,25 @@
 #include <cstdio>
 #include <array>
 #include <cstring>
+#include <functional>
+#include <bit>
 #include <nlohmann/json.hpp>
+#include <boost/container_hash/hash.hpp>
+
+std::size_t std::hash<AsrGuid>::operator()(const AsrGuid& guid) const noexcept
+{
+    struct _internal_asr_Guid
+    {
+        std::uint64_t low;
+        std::uint64_t high;
+    };
+    /**
+     * @brief require GCC 11 or Clang 14 or MSVC 19.27
+     *
+     */
+    const auto guid_data = std::bit_cast<_internal_asr_Guid>(guid);
+    return boost::hash_range(guid_data.low, guid_data.high);
+}
 
 auto ASR_FMT_NS::formatter<AsrGuid, char>::format(
     const AsrGuid&  guid,
@@ -34,7 +52,7 @@ ASR_CORE_FOREIGNINTERFACEHOST_NS_BEGIN
 
 AsrGuid MakeAsrGuid(const std::string_view guid_string)
 {
-    AsrGuid       result;
+    AsrGuid      result;
     unsigned int p0;
     static_assert(sizeof(p0) == sizeof(result.data1), "p0 type not match.");
     unsigned short p1, p2;

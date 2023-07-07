@@ -7,6 +7,14 @@
 #include <nlohmann/json_fwd.hpp>
 #include <AutoStarRail/Utils/fmt.h>
 
+namespace std {
+    template <>
+    struct hash<AsrGuid>
+    {
+        std::size_t operator()(const AsrGuid& guid) const noexcept;
+    };
+}
+
 namespace ASR_FMT_NS {
 template <>
     struct formatter<AsrGuid, char> : public formatter<std::string, char>

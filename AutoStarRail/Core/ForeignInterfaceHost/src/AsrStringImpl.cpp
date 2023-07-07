@@ -1,7 +1,7 @@
 #include "AutoStarRail/AsrConfig.h"
 #include <AutoStarRail/Core/ForeignInterfaceHost/AsrStringImpl.h>
+#include <AutoStarRail/Core/ForeignInterfaceHost/QueryInterfaceImpl.hpp>
 #include <AutoStarRail/Utils/Utils.hpp>
-#include <AutoStarRail/Utils/IAsrBaseAdapterUtils.h>
 #include <cstddef>
 #include <functional>
 #include <unicode/unistr.h>
@@ -11,6 +11,10 @@
 #include <algorithm>
 #include <cstring>
 #include <nlohmann/json.hpp>
+
+ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(
+    IAsrString,
+    AsrStringCppImpl);
 
 void AsrStringCppImpl::InvalidateCache()
 {
@@ -53,12 +57,10 @@ int64_t AsrStringCppImpl::Release() { return ref_counter_.Release(this); }
 
 AsrResult AsrStringCppImpl::QueryInterface(const AsrGuid& iid, void** pp_object)
 {
-    return ASR::Utils::AsrInterfaceConverter(this, iid, pp_object)
-        .IsExpected<IAsrBase>()
-        .IsExpected<IAsrReadOnlyString>()
-        .IsExpected<IAsrString>()
-        .IsExpected<AsrStringCppImpl>()
-        .GetResult();
+    return ASR::Core::ForeignInterfaceHost::QueryInterface<AsrStringCppImpl>(
+        this,
+        iid,
+        pp_object);
 }
 
 const UChar32* AsrStringCppImpl::CBegin()
@@ -258,10 +260,8 @@ namespace Details
         int64_t   Release() override { return 1; }
         AsrResult QueryInterface(const AsrGuid& iid, void** pp_object) override
         {
-            return ASR::Utils::AsrInterfaceConverter(this, iid, pp_object)
-                .IsExpected<IAsrBase>()
-                .IsExpected<IAsrReadOnlyString>()
-                .GetResult();
+            return ASR::Core::ForeignInterfaceHost::QueryInterface<
+                IAsrReadOnlyString>(this, iid, pp_object);
         }
 
         AsrResult GetUtf8(const char** out_string) override
