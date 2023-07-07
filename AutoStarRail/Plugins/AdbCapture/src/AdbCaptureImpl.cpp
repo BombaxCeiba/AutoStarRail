@@ -11,8 +11,8 @@ int64_t AdbCapture::Release() { return ref_counter_.Release(this); }
 AsrResult AdbCapture::QueryInterface(const AsrGuid& iid, void** pp_object)
 {
     return ASR::Utils::AsrInterfaceConverter(this, iid, pp_object)
-        .IsExpected<IAsrBase>()
-        .IsExpected<IAsrCapture>()
+        .TryConvert<IAsrBase>()
+        .TryConvert<IAsrCapture>()
         .GetResult();
 }
 

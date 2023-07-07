@@ -159,8 +159,8 @@ public:
     AsrResult QueryInterface(const AsrGuid& iid, void** ppv) override
     {
         return ASR::Utils::AsrInterfaceConverter(this, iid, ppv)
-            .IsExpected<IAsrBase>()
-            .IsExpected<IAsrSettings>()
+            .TryConvert<IAsrBase>()
+            .TryConvert<IAsrSettings>()
             .GetResult();
     }
 
