@@ -175,6 +175,7 @@ if(ASR_USE_BUNDLIED_OPENCV)
             message(FATAL_ERROR "OpenCV not found. Please install it manually or set ASR_USE_BUNDLIED_OPENCV=ON.")
         endif()
     endif()
+
     _download_and_config_opencv()
 else()
     find_package(OpenCV 4.8)
@@ -263,6 +264,7 @@ function(_download_and_config_boost)
     message("Downloading and configuring boost 1.82.")
 
     # set(BUILD_SHARED_LIBS ON)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
     set(BUILD_TESTING OFF)
 
     FetchContent_Declare(
@@ -285,14 +287,17 @@ function(_download_and_config_boost)
     endif()
 
     FetchContent_MakeAvailable(AsrBoost)
-
-    set_target_properties(boost_filesystem PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endfunction()
 
 if(${ASR_USE_BUNDLIED_BOOST})
     _download_and_config_boost()
     set(ASR_USE_BUNDLIED_BOOST TRUE)
-    list(APPEND ASR_BUNDLIED_BOOST_LIBS Boost::regex_icu Boost::dll Boost::predef)
+    list(APPEND ASR_BUNDLIED_BOOST_LIBS
+        Boost::regex_icu
+        Boost::dll
+        Boost::predef
+        Boost::bimap
+        Boost::container_hash)
 else()
     find_package(Boost 1.82 COMPONENTS filesystem)
 
@@ -347,6 +352,7 @@ endfunction()
 
 if(NOT onnxruntime_FOUND)
     message("Downloading prebuilt onnxruntime binary...")
+
     if(WIN32)
         if(${PROCESSOR_ARCHITECTURE} MATCHES "ARM64")
             # arm64
