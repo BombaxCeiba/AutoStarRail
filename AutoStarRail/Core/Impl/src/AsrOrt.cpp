@@ -19,6 +19,11 @@ const ORTCHAR_T* ToOrtChar(IAsrReadOnlyString* p_string)
     return ToOrtChar(string);
 }
 
+ASR_DEFINE_VARIABLE(AsrOrt::default_cpu_memory_info) =
+    Ort::MemoryInfo::CreateCpu(
+        OrtAllocatorType::OrtArenaAllocator,
+        OrtMemType::OrtMemTypeCPU);
+
 AsrOrt::AsrOrt(const char* model_name)
     : env_{ORT_LOGGING_LEVEL_WARNING, model_name}
 {

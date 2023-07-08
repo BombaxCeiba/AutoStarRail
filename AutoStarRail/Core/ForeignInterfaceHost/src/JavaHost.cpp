@@ -25,7 +25,7 @@ class SingletonJvm
     static decltype(&JNI_CreateJavaVM) func_jni_create_jvm_;
     static void LoadJvm(const std::filesystem::path& jvm_path)
     {
-        jvm_dll_ = boost::dll::shared_library(jvm_path.wstring());
+        jvm_dll_ = boost::dll::shared_library{jvm_path.c_str()};
         func_jni_create_jvm_ =
             jvm_dll_.get<decltype(JNI_CreateJavaVM)>("JNI_CreateJavaVM");
     }

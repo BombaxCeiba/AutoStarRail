@@ -49,6 +49,10 @@ class AsrOrt
 {
 protected:
     Ort::Env env_{};
+    Ort::SessionOptions Session_options_{};
+    Ort::AllocatorWithDefaultOptions allocator_{};
+
+    static Ort::MemoryInfo default_cpu_memory_info;
 
 public:
     AsrOrt(const char* model_name);
