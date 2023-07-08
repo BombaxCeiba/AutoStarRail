@@ -1,9 +1,11 @@
+#include "AutoStarRail/PluginInterface/IAsrCapture.h"
+#include "AutoStarRail/PluginInterface/IAsrErrorLens.h"
 #include <AutoStarRail/PluginInterface/IAsrPlugin.h>
 #include <AutoStarRail/Utils/Utils.hpp>
 #include <AutoStarRail/Core/ForeignInterfaceHost/QueryInterfaceImpl.hpp>
 #include <AutoStarRail/Core/ForeignInterfaceHost/Config.h>
-#include <boost/bimap.hpp>
 #include <string_view>
+#include <unordered_map>
 #include <cstdint>
 #include <optional>
 
@@ -23,81 +25,69 @@ concept is_asr_swig_interface = std::is_base_of_v<IAsrSwigBase, T>;
 template <class T>
 concept is_asr_interface = std::is_base_of_v<IAsrBase, T>;
 
-class CppSwigIidBiMap
-{
-    using BiMap = boost::bimaps::bimap<AsrGuid, AsrGuid>;
-
-    /**
-     * @brief Left side is cpp interface id, right side is swig interface id.
-     *
-     * @return BiMap
-     */
-    static BiMap InitializeBiMap()
-    {
-        std::initializer_list<typename BiMap::value_type> init_list = {
-            {ASR_IID_BASE, ASR_IID_SWIG_BASE},
-            {ASR_IID_PLUGIN, ASR_IID_SWIG_PLUGIN}};
-        return BiMap{init_list.begin(), init_list.end()};
-    }
-
-    const boost::bimaps::bimap<AsrGuid, AsrGuid> bi_map_ = InitializeBiMap();
-
-public:
-    std::optional<AsrGuid> FromSwig(const AsrGuid& from) const
-    {
-        if (const auto it = bi_map_.right.find(from); it != bi_map_.right.end())
-        {
-            return {it->second};
-        }
-        return {};
-    }
-
-    std::optional<AsrGuid> FromCpp(const AsrGuid& from) const
-    {
-        if (const auto it = bi_map_.left.find(from); it != bi_map_.left.end())
-        {
-            return {it->second};
-        }
-        return {};
-    }
-
-    template <is_asr_interface T>
-    AsrGuid FromCpp() const
-    {
-        return bi_map_.left.at(AsrIidOf<T>());
-    }
-
-    template <is_asr_swig_interface T>
-    AsrGuid FromSwig() const
-    {
-        return bi_map_.right.at(AsrIidOf<T>());
-    }
-};
-
-const CppSwigIidBiMap cpp_swig_iid_bi_map{};
-
 template <class T>
 class SwigToCpp;
 
-template <>
-class SwigToCpp<IAsrSwigBase> final : public IAsrBase
+template <is_asr_swig_interface SwigT, is_asr_interface T>
+class SwigToCppBase : public T
 {
-private:
-    std::shared_ptr<IAsrSwigBase> sp_impl_;
+protected:
+    std::shared_ptr<SwigT> sp_impl_;
 
 public:
     template <class Other>
-    explicit SwigToCpp(SwigToCpp<Other> other) : sp_impl_{other.sp_impl_}
+    explicit SwigToCppBase(std::shared_ptr<Other> sp_impl) : sp_impl_{sp_impl}
     {
     }
-    ~SwigToCpp() = default;
-    ASR_CORE_FROEIGNINTERFACEHOST_IASRBASE_AUTO_IMPL(SwigToCpp);
+    template <class Other>
+    explicit SwigToCppBase(SwigToCpp<Other> other) : sp_impl_{other.sp_impl_}
+    {
+    }
+
     AsrResult QueryInterface(const AsrGuid& iid, void** pp_out_object) override
     {
-        return ASR::Core::ForeignInterfaceHost::QueryInterface<IAsrBase>(
+        return ASR::Core::ForeignInterfaceHost::QueryInterface<T>(
             this,
             iid,
             pp_out_object);
+    }
+
+    std::shared_ptr<T> GetImpl() const { return sp_impl_; }
+};
+
+template <>
+class SwigToCpp<IAsrSwigBase> final
+    : public SwigToCppBase<IAsrSwigBase, IAsrBase>
+{
+public:
+    ASR_USING_BASE_CTOR(SwigToCppBase);
+    ~SwigToCpp() = default;
+    ASR_CORE_FROEIGNINTERFACEHOST_IASRBASE_AUTO_IMPL(SwigToCpp);
+};
+
+template <>
+class SwigToCpp<IAsrSwigErrorLens> final
+    : public SwigToCppBase<IAsrSwigErrorLens, IAsrErrorLens>
+{
+public:
+    ASR_USING_BASE_CTOR(SwigToCppBase);
+    ~SwigToCpp() = default;
+    ASR_CORE_FROEIGNINTERFACEHOST_IASRBASE_AUTO_IMPL(SwigToCpp);
+
+    AsrResult TranslateError(
+        IAsrReadOnlyString*  local_name,
+        AsrResult            error_code,
+        IAsrReadOnlyString** out_string) override
+    {
+        AsrString asr_str_local_name{local_name};
+        auto      swig_result =
+            sp_impl_->TranslateError(asr_str_local_name, error_code);
+        auto result = swig_result.error_code;
+        if (ASR::IsOk(result))
+        {
+            *out_string = swig_result.value.GetImpl();
+        }
+        return result;
     }
 };
 
@@ -126,30 +116,29 @@ public:
         *p_out_feature = swig_result.value;
         return result;
     }
-    AsrResult GetInterface(
-        const AsrGuid& feature_iid,
-        IAsrBase**     pp_out_feature_interface) override
+    AsrResult GetFeatureInterface(
+        AsrPluginFeature feature,
+        IAsrBase**       pp_out_object)
     {
-        auto swig_result = sp_impl_->GetInterface(feature_iid);
-
+        auto swig_result = sp_impl_->GetFeatureInterface(feature);
         auto result = swig_result.error_code;
         if (ASR::IsOk(result))
         {
-            const auto opt_swig_iid = cpp_swig_iid_bi_map.FromCpp(feature_iid);
-            if (opt_swig_iid)
+            auto interface = swig_result.value;
+            if (interface->IsCastAvailable(AsrIidOf<IAsrSwigErrorLens>()))
             {
-                const auto swig_iid = opt_swig_iid.value();
-                if (const auto is_feature_existence =
-                        swig_result.value->IsCastAvailable(swig_iid);
-                    ASR::IsOk(is_feature_existence))
-                {
-                }
+                *pp_out_object = new SwigToCpp<IAsrSwigErrorLens>(
+                    std::static_pointer_cast<IAsrSwigErrorLens>(interface));
             }
-            // TODO: Throw exception if swig iid is not found.
-        }
-        else
-        {
-            *pp_out_feature_interface = nullptr;
+            else if (interface->IsCastAvailable(AsrIidOf<IAsrSwigTask>()))
+            {
+                *pp_out_object = new SwigToCpp<IAsrSwigErrorLens>(
+                    std::static_pointer_cast<IAsrSwigErrorLens>(interface));
+            }
+            else
+            {
+                return ASR_E_NO_INTERFACE;
+            }
         }
         return result;
     }

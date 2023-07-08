@@ -19,4 +19,6 @@ ASR_DEFINE_GUID(
     0xca)
 ASR_INTERFACE IAsrTask : public IAsrBase{};
 
+ASR_INTERFACE IAsrSwigTask : public IAsrSwigBase{};
+
 #endif // ASR_ITASK_H

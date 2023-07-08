@@ -2,12 +2,16 @@
 #define ASR_IPLUGIN_H
 
 #include <AutoStarRail/IAsrBase.h>
+#include <AutoStarRail/PluginInterface/IAsrCapture.h>
+#include <AutoStarRail/PluginInterface/IAsrErrorLens.h>
+#include <AutoStarRail/PluginInterface/IAsrTask.h>
 #include <memory>
 
 enum class AsrPluginFeature
 {
     Capture,
-    ErrorLens
+    ErrorLens,
+    Task
 };
 
 // {09EA2A40-6A10-4756-AB2B-41B2FD75AB36}
@@ -27,7 +31,8 @@ ASR_DEFINE_GUID(
     0x36)
 SWIG_IGNORE(IAsrPlugin)
 /**
- * @brief plugin should define AsrResult AsrCoCreateInterface(IAsrPlugin** pp_out_plugin);
+ * @brief plugin should define AsrResult AsrCoCreateInterface(IAsrPlugin**
+ * pp_out_plugin);
  *
  */
 ASR_INTERFACE IAsrPlugin : public IAsrBase
@@ -35,9 +40,9 @@ ASR_INTERFACE IAsrPlugin : public IAsrBase
     ASR_METHOD EnumFeature(
         const size_t      index,
         AsrPluginFeature* p_out_feature) = 0;
-    ASR_METHOD GetInterface(
-        const AsrGuid& feature_iid,
-        IAsrBase**     pp_out_feature_interface) = 0;
+    ASR_METHOD GetFeatureInterface(
+        AsrPluginFeature feature,
+        IAsrBase * *pp_out_interface) = 0;
 };
 
 ASR_RET_TYPE_DECLARE_BEGIN(AsrRetPluginFeature)
@@ -68,7 +73,7 @@ SWIG_ENABLE_SHARED_PTR(IAsrSwigPlugin)
 ASR_INTERFACE IAsrSwigPlugin : public IAsrSwigBase
 {
     virtual AsrRetPluginFeature EnumFeature(const size_t index) = 0;
-    virtual AsrRetSwigBase      GetInterface(const AsrGuid& feature_iid) = 0;
+    virtual AsrRetSwigBase GetFeatureInterface(AsrPluginFeature feature) = 0;
     virtual ~IAsrSwigPlugin() override = default;
 };
 
