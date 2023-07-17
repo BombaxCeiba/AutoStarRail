@@ -31,7 +31,7 @@ ASR_DEFINE_GUID(
     0x36)
 SWIG_IGNORE(IAsrPlugin)
 /**
- * @brief plugin should define AsrResult AsrCoCreateInterface(IAsrPlugin**
+ * @brief plugin should define AsrResult AsrCoCreatePlugin(IAsrPlugin**
  * pp_out_plugin);
  *
  */
@@ -78,7 +78,7 @@ ASR_INTERFACE IAsrSwigPlugin : public IAsrSwigBase
 };
 
 /**
- * @brief Plugin should define AsrRetPlugin AsrCoCreateInterface()
+ * @brief Plugin should define AsrRetPlugin AsrCoCreatePlugin()
  *
  */
 ASR_RET_TYPE_DECLARE_BEGIN(AsrRetPlugin)

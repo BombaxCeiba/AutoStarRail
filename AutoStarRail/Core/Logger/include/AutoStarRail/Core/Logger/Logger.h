@@ -32,6 +32,15 @@
         __FILE__, __LINE__, ASR_FUNCTION                                       \
     }
 
+#define ASR_CORE_LOG_EXCEPTION(ex) ASR_CORE_LOG_ERROR(ex.what())
+
+#define ASR_CORE_LOG_JSON_EXCEPTION(ex, key, json)                             \
+    ASR_CORE_LOG_ERROR(ex.what());                                             \
+    ASR_CORE_LOG_ERROR("JSON Key: {}", key);                                   \
+    ASR_CORE_LOG_ERROR("----JSON dump begin----");                             \
+    ASR_CORE_LOG_ERROR(json.dump());                                           \
+    ASR_CORE_LOG_ERROR("----JSON dump end----")
+
 ASR_NS_BEGIN
 
 namespace Core
@@ -46,21 +55,8 @@ namespace Core
         const char* const func_;
 
     public:
-        TraceScope(const char* const file, int line, const char* const func)
-            : file_{file}, line_{line}, func_{func}
-        {
-            g_logger->log(
-                spdlog::source_loc{file_, line_, func_},
-                spdlog::level::trace,
-                "Scope in.");
-        }
-        ~TraceScope()
-        {
-            g_logger->log(
-                spdlog::source_loc{file_, line_, func_},
-                spdlog::level::trace,
-                "Scope out.");
-        }
+        TraceScope(const char* const file, int line, const char* const func);
+        ~TraceScope();
     };
 
     template <class T>

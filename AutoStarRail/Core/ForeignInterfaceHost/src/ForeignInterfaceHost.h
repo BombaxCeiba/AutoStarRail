@@ -18,10 +18,10 @@ struct PluginSettingDesc
     std::variant<std::monostate, bool, std::int64_t, float, std::string>
         default_value;
 
-    std::optional<std::string> description;
+    std::optional<std::string>              description;
     std::optional<std::vector<std::string>> enum_values;
     std::optional<std::vector<std::string>> enum_descriptions;
-    std::optional<std::string> deprecation_message;
+    std::optional<std::string>              deprecation_message;
 
     AsrType type = AsrType::String;
     /**
@@ -36,12 +36,14 @@ void from_json(const ::nlohmann::json& input, PluginSettingDesc& output);
 
 struct PluginDesc
 {
-    int32_t plugin_metadata_version;
-    std::string name;
-    std::string author;
-    std::string version;
-    std::string supported_system;
-    AsrGuid guid;
+    int32_t                        plugin_metadata_version;
+    std::string                    name;
+    std::string                    description;
+    std::string                    author;
+    std::string                    version;
+    std::string                    supported_system;
+    std::string                    plugin_filename_extension;
+    AsrGuid                        guid;
     std::vector<PluginSettingDesc> settings;
 };
 

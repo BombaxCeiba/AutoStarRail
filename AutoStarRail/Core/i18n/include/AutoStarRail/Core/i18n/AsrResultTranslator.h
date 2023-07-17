@@ -5,7 +5,12 @@
 
 ASR_CORE_I18N_NS_BEGIN
 
-extern const I18n<AsrResult> asr_result_translator;
+AsrResult TranslateError(
+    IAsrReadOnlyString*  local_name,
+    AsrResult            error_code,
+    IAsrReadOnlyString** out_string);
+
+extern const I18n<AsrResult> g_translator_data;
 
 ASR_CORE_I18N_NS_END
 

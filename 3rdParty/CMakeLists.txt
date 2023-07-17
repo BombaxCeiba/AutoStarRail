@@ -39,24 +39,38 @@ add_custom_target(AsrAutoCopyDll ALL DEPENDS AsrCoreObjects)
 set(CMAKE_CXX_STANDARD 20)
 add_library(Asr3rdParty INTERFACE)
 
-# config GoogleTest
-# GoogleTest requires at least C++14
-message(STATUS "Downloading and configuring google test.")
-FetchContent_Declare(
-    googletest
-    URL ${GITHUB_MIRROR_URL}/google/googletest/archive/refs/tags/v1.13.0.tar.gz
-)
+if(${BUILD_TEST})
+    # config GoogleTest
+    # GoogleTest requires at least C++14
+    message(STATUS "Downloading and configuring google test.")
+    FetchContent_Declare(
+        googletest
+        URL ${GITHUB_MIRROR_URL}/google/googletest/archive/refs/tags/v1.13.0.tar.gz
+    )
 
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(googletest)
+    FetchContent_MakeAvailable(googletest)
+endif()
 
 # config QT5
 if(${BUILD_QT5_GUI})
     message(STATUS "Option BUILD_QT5_GUI=ON. Qt5 is required.")
     find_package(Qt5 COMPONENTS Widgets Qml Quick REQUIRED)
 endif()
+
+message(STATUS "Downloading and configuring tl::expected")
+FetchContent_Declare(
+    tl_expected
+    URL "${GITHUB_MIRROR_URL}/TartanLlama/expected/archive/refs/tags/v1.1.0.zip"
+)
+
+if(NOT tl_expected)
+    FetchContent_Populate(tl_expected)
+endif()
+
+target_include_directories(Asr3rdParty INTERFACE ${tl_expected_SOURCE_DIR}/include)
 
 # config magic_enum
 message(STATUS "Downloading and configuring magic enum.")
@@ -90,6 +104,7 @@ FetchContent_Declare(
 set(SPDLOG_BUILD_PIC ON)
 
 if(ASR_SPDLOG_USE_STD_FMT)
+    message(STATUS "spdlog will use std format library.")
     set(SPDLOG_USE_STD_FORMAT ON)
 endif()
 
@@ -103,6 +118,11 @@ target_link_libraries(Asr3rdParty INTERFACE spdlog::spdlog)
 
 function(_download_and_config_opencv)
     message(STATUS "Downloading OpenCV source.")
+
+    #fix error on CMake 3.27 rc4
+    if(POLICY CMP0148)
+        cmake_policy(SET CMP0148 NEW)
+    endif()
 
     # NOTICE: OpenCV wil turn this option ON automically, so I explicitly set it.
     set(BUILD_SHARED_LIBS ON)
@@ -132,7 +152,7 @@ function(_download_and_config_opencv)
     set(BUILD_opencv_video OFF)
     set(BUILD_opencv_videoio OFF)
     set(BUILD_opencv_world OFF)
-    set(WITH_OPENCL OFF)
+    set(WITH_OPENCL ON)
     set(BUILD_opencv_python_bindings_generator OFF)
     set(BUILD_opencv_python_test OFF)
     set(BUILD_opencv_java_bindings_generator OFF)
@@ -188,7 +208,7 @@ else()
 endif()
 
 function(_on_download_icu)
-    message("Downloading prebuilt icu binary...")
+    message(STATUS "Downloading prebuilt icu binary...")
 endfunction()
 
 if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -261,7 +281,7 @@ endif()
 find_package(ICU COMPONENTS data i18n uc REQUIRED)
 
 function(_download_and_config_boost)
-    message("Downloading and configuring boost 1.82.")
+    message(STATUS "Downloading and configuring boost 1.82.")
 
     # set(BUILD_SHARED_LIBS ON)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -289,6 +309,7 @@ function(_download_and_config_boost)
     FetchContent_MakeAvailable(AsrBoost)
 endfunction()
 
+set(BOOST_FILESYSTEM_NO_DEPRECATED ON)
 if(${ASR_USE_BUNDLIED_BOOST})
     _download_and_config_boost()
     set(ASR_USE_BUNDLIED_BOOST TRUE)
@@ -310,7 +331,7 @@ endif()
 
 # config Nlohnmann Json
 # Notice: This library assume string is encoded in UTF-8.
-message("Downloading and configuring nlohmann json.")
+message(STATUS "Downloading and configuring nlohmann json.")
 FetchContent_Declare(
     NlohnmannJson
     URL ${GITHUB_MIRROR_URL}/nlohmann/json/archive/refs/tags/v3.11.2.tar.gz)
@@ -351,7 +372,7 @@ function(_download_and_config_onnxruntime TARGET_NAME URL)
 endfunction()
 
 if(NOT onnxruntime_FOUND)
-    message("Downloading prebuilt onnxruntime binary...")
+    message(STATUS "Downloading prebuilt onnxruntime binary...")
 
     if(WIN32)
         if(${PROCESSOR_ARCHITECTURE} MATCHES "ARM64")

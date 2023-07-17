@@ -34,27 +34,15 @@ T GetJsonValue(
     return result;
 }
 
-const auto default_on_type_error = [](const nlohmann::json::exception& ex,
-                                      const nlohmann::json&            j,
-                                      const char*                      key)
-{
-    ASR::Core::LogException(ex);
-    ASR_CORE_LOG_ERROR("Failed to get value for key: {}", key);
-    ASR_CORE_LOG_ERROR("----Begin json dump----");
-    ASR_CORE_LOG_ERROR(j.dump());
-    ASR_CORE_LOG_ERROR("----End json dump----");
-};
+constexpr auto default_on_type_error = [](const nlohmann::json::exception& ex,
+                                          const nlohmann::json&            j,
+                                          const char*                      key)
+{ ASR_CORE_LOG_JSON_EXCEPTION(ex, key, j); };
 
-const auto default_on_json_error = [](const nlohmann::json::exception& ex,
-                                      const nlohmann::json&            j,
-                                      const char*                      key)
-{
-    ASR::Core::LogException(ex);
-    ASR_CORE_LOG_ERROR("Failed to get value for key: {}", key);
-    ASR_CORE_LOG_ERROR("----Begin json dump----");
-    ASR_CORE_LOG_ERROR(j.dump());
-    ASR_CORE_LOG_ERROR("----End json dump----");
-};
+constexpr auto default_on_json_error = [](const nlohmann::json::exception& ex,
+                                          const nlohmann::json&            j,
+                                          const char*                      key)
+{ ASR_CORE_LOG_JSON_EXCEPTION(ex, key, j); };
 
 template <class T>
 T GetJsonValueOnDefaultErrorHandle(const nlohmann::json& j, const char* key)

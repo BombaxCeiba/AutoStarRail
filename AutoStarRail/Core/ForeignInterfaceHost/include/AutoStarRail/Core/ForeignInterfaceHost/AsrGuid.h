@@ -7,22 +7,19 @@
 #include <nlohmann/json_fwd.hpp>
 #include <AutoStarRail/Utils/fmt.h>
 
-namespace std {
-    template <>
-    struct hash<AsrGuid>
-    {
-        std::size_t operator()(const AsrGuid& guid) const noexcept;
-    };
-}
-
-namespace ASR_FMT_NS {
 template <>
-    struct formatter<AsrGuid, char> : public formatter<std::string, char>
-    {
-        auto format(const AsrGuid& guid, format_context& ctx) const ->
-            typename std::remove_reference_t<decltype(ctx)>::iterator;
-    };
-}
+struct std::hash<AsrGuid>
+{
+    std::size_t operator()(const AsrGuid& guid) const noexcept;
+};
+
+template <>
+struct ASR_FMT_NS::formatter<AsrGuid, char>
+    : public formatter<std::string, char>
+{
+    auto format(const AsrGuid& guid, format_context& ctx) const ->
+        typename std::remove_reference_t<decltype(ctx)>::iterator;
+};
 
 ASR_CORE_FOREIGNINTERFACEHOST_NS_BEGIN
 

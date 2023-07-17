@@ -64,6 +64,26 @@ namespace Core
     }();
 
     const char* const g_logger_name = "asr_core_g_logger";
+
+    TraceScope::TraceScope(
+        const char* const file,
+        int               line,
+        const char* const func)
+        : file_{file}, line_{line}, func_{func}
+    {
+        g_logger->log(
+            spdlog::source_loc{file_, line_, func_},
+            spdlog::level::trace,
+            "Scope in.");
+    }
+
+    TraceScope::~TraceScope()
+    {
+        g_logger->log(
+            spdlog::source_loc{file_, line_, func_},
+            spdlog::level::trace,
+            "Scope out.");
+    }
 }
 
 ASR_NS_END

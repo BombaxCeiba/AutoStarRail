@@ -17,12 +17,12 @@ AsrRetGuid AsrMakeAsrGuid(const char* p_guid_string)
     }
     catch (const ASR::Core::InvalidGuidStringException& ex)
     {
-        ASR::Core::LogException(ex);
+        ASR_CORE_LOG_EXCEPTION(ex);
         result = {ASR_E_INVALID_STRING, ASR_IID_BASE};
     }
     catch (const ASR::Core::InvalidGuidStringSizeException& ex)
     {
-        ASR::Core::LogException(ex);
+        ASR_CORE_LOG_EXCEPTION(ex);
         result = {ASR_E_INVALID_STRING_SIZE, ASR_IID_BASE};
     }
     return result;

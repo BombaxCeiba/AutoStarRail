@@ -59,9 +59,13 @@ public:
 
     AsrResult     SetDefaultLocale(const char8_t* const default_locale);
     std::u8string GetDefaultLocale() const;
-    AsrResult     GetErrorDescription(
+    AsrResult     GetErrorExplanation(
             const T&       result,
-            std::u8string* out_error_description) const;
+            std::u8string* out_error_explanation) const;
+    AsrResult GetErrorExplanation(
+        const char8_t* const locale,
+        const T&             result,
+        std::u8string*       out_error_explanation) const;
 };
 
 extern template class I18n<AsrResult>;

@@ -12,6 +12,26 @@
 #include <cstring>
 #include <nlohmann/json.hpp>
 
+auto (ASR_FMT_NS::formatter<IAsrReadOnlyString, char>::format)(
+    IAsrReadOnlyString* p_string,
+    format_context&     ctx) const ->
+    typename std::remove_reference_t<decltype(ctx)>::iterator
+{
+    const char* p_string_data{nullptr};
+    const auto  result = p_string->GetUtf8(&p_string_data);
+    if (ASR::IsOk(result))
+    {
+        return ASR_FMT_NS::format_to(ctx.out(), "{}", p_string_data);
+    }
+    else
+    {
+        return ASR_FMT_NS::format_to(
+            ctx.out(),
+            "(An error occurred when getting string, with error code = {})",
+            result);
+    }
+}
+
 ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(
     IAsrString,
     AsrStringCppImpl);

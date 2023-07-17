@@ -83,8 +83,11 @@ void from_json(const nlohmann::json& input, PluginDesc& output)
 
     input.at("pluginMetadataVersion").get_to(output.plugin_metadata_version);
     input.at("name").get_to(output.name);
+    input.at("description").get_to(output.description);
     input.at("author").get_to(output.author);
     input.at("version").get_to(output.version);
+    input.at("supportedSystem").get_to(output.supported_system);
+    input.at("pluginFilenameExtension").get_to(output.plugin_filename_extension);
     const auto guid_string = input.at("guid").get<std::string>();
     output.guid = MakeAsrGuid(guid_string);
     input.at("settings").get_to(output.settings);

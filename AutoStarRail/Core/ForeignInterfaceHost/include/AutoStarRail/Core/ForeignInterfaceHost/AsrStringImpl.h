@@ -4,6 +4,15 @@
 #include <memory>
 #include <unicode/unistr.h>
 #include <nlohmann/json_fwd.hpp>
+#include <AutoStarRail/Utils/fmt.h>
+
+template <>
+struct ASR_FMT_NS::formatter<IAsrReadOnlyString, char>
+    : public formatter<std::string, char>
+{
+    auto format(IAsrReadOnlyString* p_string, format_context& ctx) const ->
+        typename std::remove_reference_t<decltype(ctx)>::iterator;
+};
 
 ASR_NS_BEGIN
 
@@ -120,7 +129,8 @@ private:
 public:
     AsrStringCppImpl();
     explicit AsrStringCppImpl(const U_NAMESPACE_QUALIFIER UnicodeString& impl);
-    explicit AsrStringCppImpl(U_NAMESPACE_QUALIFIER UnicodeString&& impl) noexcept;
+    explicit AsrStringCppImpl(
+        U_NAMESPACE_QUALIFIER UnicodeString&& impl) noexcept;
     ~AsrStringCppImpl();
     // * IAsrBase
     int64_t   AddRef() override;

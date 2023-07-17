@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.21)
 
 project(AtuoStarRail LANGUAGES CXX VERSION 0.1)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # fix missing CMAKE_ASM_MASM_COMPILE_OBJECT or CMAKE_ASM_NASM_COMPILE_OBJECT
 # NOTICE: I have modified the CMakeLists.txt in boost context, so that boost can explicitly use MASM on Windows.
 #         Then I MUST enable ASM_NASM after ASM_MASM, therefore CMake will compile asm files in OpenCV using NASM compiler as defualt asm complier.
@@ -16,11 +18,11 @@ option(EXPORT_JAVA "导出Java接口" OFF)
 option(EXPORT_CSHARP "导出C#接口" OFF)
 option(EXPORT_PYTHON "导出Python接口" OFF)
 
-set(ASR_SPD_FMT_OPTION_EXPLANATION "项目自带的spdlog使用标准库的fmt，OFF则会使用spdlog自带的fmt")
 # See [C++ 20 Compiler support](https://en.cppreference.com/w/cpp/compiler_support/20)
-if((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER 17) OR
-    (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER 13) OR
-    (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER 19.29))
+include(AsrCheckStdFmt)
+
+set(ASR_SPD_FMT_OPTION_EXPLANATION "项目自带的spdlog使用标准库的fmt，OFF则会使用spdlog自带的fmt")
+if(ASR_STD_FMT_SUPPORT)
     option(ASR_SPDLOG_USE_STD_FMT ${ASR_SPD_FMT_OPTION_EXPLANATION} ON)
     option(ASR_USE_BUNDLIED_FMT "" OFF)
 else()
@@ -40,8 +42,6 @@ option(ASR_USE_BUNDLIED_OPENCV "强制使用下载的OpenCV源码构建" OFF)
 if(NOT DEFINED GITHUB_MIRROR_URL)
     set(GITHUB_MIRROR_URL "https://github.com")
 endif()
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(ASR_DEFAULT_SHARED_LIBRARY_PREFIX ${CMAKE_SHARED_LIBRARY_PREFIX})
 set(ASR_DEFAULT_STATIC_LIBRARY_PREFIX ${CMAKE_STATIC_LIBRARY_PREFIX})

@@ -10,20 +10,17 @@
 
 std::size_t std::hash<AsrGuid>::operator()(const AsrGuid& guid) const noexcept
 {
-    struct _internal_asr_Guid
-    {
-        std::uint64_t low;
-        std::uint64_t high;
-    };
+    using _internal_asr_Guid = std::array<int64_t, 2>;
+
     /**
-     * @brief require GCC 11 or Clang 14 or MSVC 19.27
+     * @brief std::bit_cast require GCC 11 or Clang 14 or MSVC 19.27
      *
      */
     const auto guid_data = std::bit_cast<_internal_asr_Guid>(guid);
-    return boost::hash_range(guid_data.low, guid_data.high);
+    return boost::hash_range(guid_data.cbegin(), guid_data.cend());
 }
 
-auto ASR_FMT_NS::formatter<AsrGuid, char>::format(
+auto (ASR_FMT_NS::formatter<AsrGuid, char>::format)(
     const AsrGuid&  guid,
     format_context& ctx) const ->
     typename std::remove_reference_t<decltype(ctx)>::iterator
@@ -77,21 +74,21 @@ AsrGuid MakeAsrGuid(const std::string_view guid_string)
 #define ASR_SSCANF std::sscanf
 #endif // _MSC_VER
 
-    const auto err = ASR_SSCANF(
-        guid_string.data(),
-        "%08X-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX",
-        &p0,
-        &p1,
-        &p2,
-        &p3,
-        &p4,
-        &p5,
-        &p6,
-        &p7,
-        &p8,
-        &p9,
-        &p10);
-    if (err != 11)
+    if (const auto err = ASR_SSCANF(
+            guid_string.data(),
+            "%08X-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX",
+            &p0,
+            &p1,
+            &p2,
+            &p3,
+            &p4,
+            &p5,
+            &p6,
+            &p7,
+            &p8,
+            &p9,
+            &p10);
+        err != 11)
     {
         throw InvalidGuidStringException(guid_string);
     }
@@ -137,7 +134,7 @@ AsrString AsrGuidToString(const AsrGuid& guid)
         guid.data4[6],
         guid.data4[7]);
 
-    IAsrString* p_result;
-    ::CreateIAsrStringFromUtf8(string.c_str(), &p_result);
+    ASR::AsrPtr<IAsrString> p_result;
+    ::CreateIAsrStringFromUtf8(string.c_str(), p_result.Put());
     return AsrString{p_result};
 }

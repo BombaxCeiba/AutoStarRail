@@ -56,9 +56,19 @@
  * @brief 返回此值表示枚举结束
  *
  */
-#define ASR_E_ITEM_NOT_FOUND ASR_E_RESERVED - 9
+#define ASR_E_OUT_OF_RANGE ASR_E_RESERVED - 11
+#define ASR_E_DUPLICATE_ELEMENT ASR_E_RESERVED - 12
+#define ASR_E_FILE_NOT_FOUND ASR_E_RESERVED - 13
+#define ASR_E_MAYBE_OVERFLOW ASR_E_RESERVED - 14
+
+#ifdef _MSC_VER
+#define ASR_STD_CALL __stdcall
+#else
+#define ASR_STD_CALL  __attribute__((__stdcall__))
+#endif // _MSC_VER
 
 #define ASR_INTERFACE struct
+
 #define ASR_METHOD virtual AsrResult
 
 using AsrResult = int32_t;

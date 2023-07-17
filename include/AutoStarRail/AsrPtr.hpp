@@ -135,16 +135,13 @@ AsrPtr(T*) -> AsrPtr<T>;
 
 ASR_NS_END
 
-namespace std
+template <class T>
+struct ::std::hash<ASR::AsrPtr<T>>
 {
-    template <class T>
-    struct hash<ASR::AsrPtr<T>>
+    size_t operator()(const ASR::AsrPtr<T>& ptr) const
     {
-        size_t operator()(const ASR::AsrPtr<T>& ptr) const
-        {
-            return std::hash<T*>()(ptr.Get());
-        }
-    };
-}
+        return std::hash<T*>()(ptr.Get());
+    }
+};
 
 #endif // ASR_ASRPTR_HPP

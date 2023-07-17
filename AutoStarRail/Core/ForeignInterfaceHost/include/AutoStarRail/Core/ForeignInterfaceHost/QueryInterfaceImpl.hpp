@@ -1,9 +1,11 @@
 #ifndef ASR_CORE_FOREIGNINTERFACEHOST_QUERYINTERFACEIMPL_HPP
 #define ASR_CORE_FOREIGNINTERFACEHOST_QUERYINTERFACEIMPL_HPP
 
-#include <AutoStarRail/IAsrBase.h>
-#include <AutoStarRail/AsrString.hpp>
+#include <AutoStarRail/PluginInterface/IAsrCapture.h>
+#include <AutoStarRail/PluginInterface/IAsrErrorLens.h>
+#include <AutoStarRail/PluginInterface/IAsrTask.h>
 #include <AutoStarRail/PluginInterface/IAsrPlugin.h>
+#include <AutoStarRail/AsrString.hpp>
 #include <AutoStarRail/Core/ForeignInterfaceHost/Config.h>
 #include <AutoStarRail/Utils/IAsrBaseAdapterUtils.h>
 
@@ -21,8 +23,8 @@ QueryInterface(TImpl* p_this, const AsrGuid& iid, void** pp_out_object)
 
 ASR_NS_ANONYMOUS_DETAILS_BEGIN
 
-template <class T, class In>
-AsrResult QueryInterface(In* p_this, const AsrGuid& iid, void** pp_out_object)
+template <class T, class TImpl>
+AsrResult QueryInterface(TImpl* p_this, const AsrGuid& iid, void** pp_out_object)
 {
     if (AsrIidOf<T>() == iid)
     {
@@ -72,8 +74,18 @@ ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(
     IAsrReadOnlyString,
     IAsrString);
 
+// PluginInterface/IAsrCapture.h
+ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(IAsrBase, IAsrCapture);
+ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(IAsrBase, IAsrCaptureFactory);
+
 // PluginInterface/IAsrPlugin.hpp
 ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(IAsrBase, IAsrPlugin);
+
+// PluginInterface/IAsrErrorLens.h
+ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(IAsrBase, IAsrErrorLens);
+
+// PluginInterface/IAsrTask.h
+ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(IAsrBase, IAsrTask);
 
 ASR_CORE_FOREIGNINTERFACEHOST_NS_END
 

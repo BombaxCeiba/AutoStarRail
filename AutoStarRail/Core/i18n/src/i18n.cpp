@@ -132,19 +132,54 @@ std::u8string I18n<T>::GetDefaultLocale() const
 }
 
 template <class T>
-AsrResult I18n<T>::GetErrorDescription(
+AsrResult I18n<T>::GetErrorExplanation(
     const T&       result,
-    std::u8string* out_error_description) const
+    std::u8string* out_error_explanation) const
 {
     const auto& translate_table = it_default_translate_map_->second;
     if (const auto it = translate_table.find(result);
         it != translate_table.end())
     {
-        *out_error_description = it->second;
+        *out_error_explanation = it->second;
         return ASR_S_OK;
     }
-    *out_error_description = {};
+    *out_error_explanation = {};
     return ASR_E_NO_IMPLEMENTATION;
+}
+
+template <class T>
+AsrResult I18n<T>::GetErrorExplanation(
+    const char8_t* const locale,
+    const T&             result,
+    std::u8string*       out_error_explanation) const
+{
+    if (const auto resource_it = translate_resource_.find(locale);
+        resource_it != translate_resource_.end())
+    {
+        const auto& table = resource_it->second;
+        if (const auto it = table.find(result); it != table.end())
+        {
+            *out_error_explanation = it->second;
+            return ASR_S_OK;
+        }
+        *out_error_explanation = {};
+        return ASR_E_NO_IMPLEMENTATION;
+    }
+    else
+    {
+        // fallback to default locale
+        if (const auto en_us_resource_it = translate_resource_.find(u8"en");
+            en_us_resource_it != translate_resource_.end())
+        {
+            const auto& table = en_us_resource_it->second;
+            if (const auto it = table.find(result); it != table.end())
+            {
+                *out_error_explanation = it->second;
+                return ASR_S_OK;
+            }
+        }
+        return ASR_E_NO_IMPLEMENTATION;
+    }
 }
 
 ASR_CORE_I18N_NS_END

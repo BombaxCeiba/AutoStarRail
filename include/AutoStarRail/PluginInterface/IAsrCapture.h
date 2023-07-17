@@ -91,11 +91,4 @@ ASR_C_API AsrResult CreateIAsrImage(
     bool*       p_out_is_pass_ownership,
     IAsrImage** pp_out_image);
 
-SWIG_IGNORE(GetUserSpecifiedCaptureFactory)
-ASR_C_API AsrResult
-GetUserSpecifiedCaptureFactory(IAsrCaptureFactory** pp_out_factory);
-
-ASR_API std::shared_ptr<IAsrSwigCaptureFactory>
-        GetUserSpecifiedCaptureFactory();
-
 #endif // ASR_ICAPTURE_H

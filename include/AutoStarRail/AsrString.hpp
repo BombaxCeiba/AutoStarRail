@@ -186,11 +186,11 @@ public:
     SWIG_IGNORE(cend)
     const int32_t* cend() const { return p_impl_->CEnd(); };
     SWIG_IGNORE(GetImpl)
-    IAsrReadOnlyString* GetImpl() const
+    void GetImpl(IAsrReadOnlyString** pp_out_readonly_string) const
     {
         const auto result = p_impl_.Get();
+        *pp_out_readonly_string = result;
         result->AddRef();
-        return result;
     };
 };
 

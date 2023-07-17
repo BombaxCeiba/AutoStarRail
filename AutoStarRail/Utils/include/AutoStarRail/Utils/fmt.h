@@ -14,7 +14,7 @@ ASR_NS_BEGIN
         using namespace ::std;
     }
 ASR_NS_END
-#define ASR_FMT_NS std
+#define ASR_FMT_NS ::std
 #else
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -23,7 +23,7 @@ ASR_NS_BEGIN
         using namespace ::fmt;
     }
 ASR_NS_END
-#define ASR_FMT_NS fmt
+#define ASR_FMT_NS ::fmt
 #endif
 
 #endif // ASR_UTILS_FMT_H
