@@ -1,4 +1,5 @@
 #include "AutoStarRail/AsrConfig.h"
+#include "AutoStarRail/Core/ForeignInterfaceHost/Config.h"
 #include <AutoStarRail/Core/ForeignInterfaceHost/AsrStringImpl.h>
 #include <AutoStarRail/Core/ForeignInterfaceHost/QueryInterfaceImpl.hpp>
 #include <AutoStarRail/Utils/Utils.hpp>
@@ -32,9 +33,13 @@ auto (ASR_FMT_NS::formatter<IAsrReadOnlyString, char>::format)(
     }
 }
 
+ASR_CORE_FOREIGNINTERFACEHOST_NS_BEGIN
+
 ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(
     IAsrString,
     AsrStringCppImpl);
+
+ASR_CORE_FOREIGNINTERFACEHOST_NS_END
 
 void AsrStringCppImpl::InvalidateCache()
 {

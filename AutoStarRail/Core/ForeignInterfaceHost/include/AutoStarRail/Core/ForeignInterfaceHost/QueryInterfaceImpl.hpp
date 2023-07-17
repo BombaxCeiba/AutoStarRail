@@ -49,14 +49,14 @@ struct QueryInterfaceImpl<IAsrBase>
 
 #define ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(base, derived) \
     template <>                                                                \
-    struct ASR::Core::ForeignInterfaceHost::QueryInterfaceImpl<derived>        \
+    struct QueryInterfaceImpl<derived>                                         \
     {                                                                          \
         template <class T>                                                     \
         AsrResult                                                              \
         operator()(T* p_this, const AsrGuid& iid, void** pp_out_object)        \
         {                                                                      \
             return ASR::IsOk(                                                  \
-                       ASR::Core::ForeignInterfaceHost::QueryInterfaceImpl<    \
+                       QueryInterfaceImpl<                                     \
                            base>{}(p_this, iid, pp_out_object))                \
                        ? ASR_S_OK                                              \
                        : Details::QueryInterface<derived>(                     \

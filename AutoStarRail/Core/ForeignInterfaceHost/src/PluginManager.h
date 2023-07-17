@@ -93,7 +93,7 @@ public:
         plugin_interface.cpp_interface = p_interface;
         plugin_interface.swig_interface = CppToSwig<T>(p_interface);
 
-        InternalAddInterface(plugin_interface, plugin_guid);
+        return InternalAddInterface(plugin_interface, plugin_guid);
     }
 
     AsrResult AddInterface(
@@ -104,7 +104,7 @@ public:
         plugin_interface.cpp_interface = SwigToCpp<SwigT>(sp_interface);
         plugin_interface.swig_interface = sp_interface;
 
-        InternalAddInterface(plugin_interface, plugin_guid);
+        return InternalAddInterface(plugin_interface, plugin_guid);
     }
 };
 

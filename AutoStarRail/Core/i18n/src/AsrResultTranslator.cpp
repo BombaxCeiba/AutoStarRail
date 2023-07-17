@@ -33,7 +33,7 @@ AsrResult TranslateError(
 
     if (!ASR::IsOk(result))
     {
-        const auto error_string = std::format(
+        const auto error_string = ASR::fmt::format(
             ASR_UTILS_STRINGUTILS_DEFINE_U8STR(
                 "Error happened when getting error explanation. Code = {} ."),
             result);

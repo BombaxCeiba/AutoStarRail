@@ -9,6 +9,7 @@
 #include <AutoStarRail/Core/Logger/Logger.h>
 #include <AutoStarRail/Core/ForeignInterfaceHost/CppSwigInterop.h>
 #include <AutoStarRail/Core/i18n/AsrResultTranslator.h>
+#include "AutoStarRail/Utils/Expected.h"
 #include "ForeignInterfaceHost.h"
 #include <cstddef>
 #include <functional>
@@ -112,7 +113,7 @@ auto GetSupportedFeatures(T& p_plugin, std::string_view plugin_name)
         }
         else
         {
-            return tl::make_unexpected(
+            return ASR::Utils::MakeUnexpected(
                 ASR_E_MAYBE_OVERFLOW,
                 ASR::fmt::format(
                     "Executing function \"EnumFeature\" in plugin(name = {}) more than the maximum limit of {} times, stopping.",
@@ -125,7 +126,7 @@ auto GetSupportedFeatures(T& p_plugin, std::string_view plugin_name)
     {
         // TODO: Call function below when unexpected.
         // LogErrorWhenGettingPluginFeature(enum_feature_result, plugin_name)
-        return tl::make_unexpected(
+        return ASR::Utils::MakeUnexpected(
             enum_feature_result,
             ASR::fmt::format(
                 "Getting plugin(name = {}) feature failed with error code {}.",

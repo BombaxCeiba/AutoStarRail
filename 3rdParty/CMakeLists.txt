@@ -99,7 +99,7 @@ endif()
 message(STATUS "Downloading and configuring spdlog.")
 FetchContent_Declare(
     spdlog
-    URL "${GITHUB_MIRROR_URL}/gabime/spdlog/archive/refs/tags/v1.11.0.zip")
+    URL "${GITHUB_MIRROR_URL}/gabime/spdlog/archive/refs/tags/v1.12.0.zip")
 
 set(SPDLOG_BUILD_PIC ON)
 
