@@ -17,13 +17,17 @@
         return ASR::Utils::Compare(var, std::make_tuple(rhs, w_rhs));          \
     }()
 
-// reference from https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2513r4.html
-#if ASR_P2513R4_SUPPORT
-#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR_IMPL(x) u8##x
-#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR(x) ASR_UTILS_STRINGUTILS_DEFINE_U8STR_IMPL(x)
-#else
+// reference from
+// https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2513r4.html
+#if defined(__cpp_char8_t)
 #define ASR_UTILS_STRINGUTILS_DEFINE_U8STR_IMPL(x) u8##x##_asr_as_char
-#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR(x) ASR_UTILS_STRINGUTILS_DEFINE_U8STR_IMPL(x)
+#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR(x)                                  \
+    ASR_UTILS_STRINGUTILS_DEFINE_U8STR_IMPL(x)
+#else
+#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR_IMPL(x) u8##x
+#define ASR_UTILS_STRINGUTILS_DEFINE_U8STR(x)                                  \
+    ASR_UTILS_STRINGUTILS_DEFINE_U8STR_IMPL(x)
+#define
 #endif // ASR_P2513R4_SUPPORT
 
 ASR_UTILS_NS_BEGIN

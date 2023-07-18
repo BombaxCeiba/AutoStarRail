@@ -1,39 +1,12 @@
 # 清零前缀，后续手动指定
 include(AsrClearLibPrefix)
 
-include(CheckCXXSourceRuns)
-
-set(ASR_OLD_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS})
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_REQUIRED_FLAGS /std:c++20)
-else()
-    set(CMAKE_REQUIRED_FLAGS -std=c++20)
-endif()
-
-check_cxx_source_runs("
-  #include <iostream>
-  int main()
-  {
-    constexpr char u8_string[] = u8\"test\";
-    std::cout << u8_string;
-    return 0;
-  }" ASR_P2513R4_SUPPORT)
-
-set(CMAKE_REQUIRED_FLAGS ${ASR_OLD_REQUIRED_FLAGS})
-
 add_library(AsrCoreObjects OBJECT)
 target_compile_options(AsrCoreObjects PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
 set_property(TARGET AsrCoreObjects PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-if(ASR_P2513R4_SUPPORT)
-    target_compile_definitions(AsrCoreObjects PRIVATE -DASR_P2513R4_SUPPORT=1)
-else()
-    target_compile_definitions(AsrCoreObjects PRIVATE -DASR_P2513R4_SUPPORT=0)
-endif()
 
 target_compile_definitions(AsrCoreObjects PRIVATE -DASR_BUILD_SHARED)
 target_link_libraries(AsrCoreObjects PUBLIC
