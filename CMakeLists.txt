@@ -85,6 +85,8 @@ if(${USE_LLD} AND NOT MSVC)
     add_compile_options("-fuse-ld=lld")
 endif()
 
+configure_file(${CMAKE_SOURCE_DIR}/cmake/CTestCustom.cmake ${CMAKE_BINARY_DIR} @ONLY)
+
 add_custom_target(RemoveSwigOutput
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/AsrRemoveSwigOutput.cmake)
 
