@@ -1,3 +1,5 @@
+#include "AutoStarRail/IAsrBase.h"
+#include <cstdint>
 #ifdef ASR_EXPORT_PYTHON
 
 #include "PythonHost.h"
@@ -268,19 +270,23 @@ class PyInterpreter
     }
 };
 
-AsrResult PythonRuntime::Init(const ForeignLanguageRuntimeFactoryDescBase& desc)
+class PythonRuntime final : public IForeignLanguageRuntime
 {
-    const auto& python_runtime_desc =
-        static_cast<const PythonRuntimeDesc&>(desc);
-    (void)python_runtime_desc;
-    return ASR_E_NO_IMPLEMENTATION;
-}
+private:
+    PyObjectPtr p_plugin_module;
 
-AsrResult PythonRuntime::LoadPlugin(const std::filesystem::path& plugin_path)
-{
-    (void)plugin_path;
-    return ASR_E_NO_IMPLEMENTATION;
-}
+public:
+    PythonRuntime();
+
+    int64_t   AddRef() override { return 1; };
+    int64_t   Release() override { return 1; };
+    AsrResult QueryInterface(const AsrGuid&, void**) override
+    {
+        return ASR_E_NO_IMPLEMENTATION;
+    }
+    auto LoadPlugin(const std::filesystem::path& path)
+        -> ASR::Utils::Expected<CommonPluginPtr> override;
+};
 
 ASR_NS_PYTHONHOST_END
 

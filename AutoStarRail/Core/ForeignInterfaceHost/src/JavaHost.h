@@ -24,14 +24,6 @@ struct JavaRuntimeDesc : public ForeignLanguageRuntimeFactoryDescBase
     boost::filesystem::path jvm_dll_path;
 };
 
-class JavaRuntime final : public IForeignLanguageRuntime
-{
-public:
-    JavaRuntime();
-    AsrResult Init(const ForeignLanguageRuntimeFactoryDescBase& desc) override;
-    AsrResult LoadPlugin(const std::filesystem::path& path) override;
-};
-
 ASR_NS_JAVAHOST_END
 
 ASR_CORE_FOREIGNINTERFACEHOST_NS_END

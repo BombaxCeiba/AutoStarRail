@@ -45,6 +45,8 @@ ASR_INTERFACE IAsrPlugin : public IAsrBase
         IAsrBase * *pp_out_interface) = 0;
 };
 
+using AsrCoCreatePluginFunction = AsrResult (*)(IAsrPlugin** pp_out_plugin);
+
 ASR_RET_TYPE_DECLARE_BEGIN(AsrRetPluginFeature)
     AsrPluginFeature value;
 ASR_RET_TYPE_DECLARE_END
@@ -70,6 +72,10 @@ ASR_DEFINE_GUID(
     0xaa);
 SWIG_ENABLE_DIRECTOR(IAsrSwigPlugin)
 SWIG_ENABLE_SHARED_PTR(IAsrSwigPlugin)
+/**
+ * @brief Plugin should define AsrRetPlugin AsrCoCreatePlugin()
+ *
+ */
 ASR_INTERFACE IAsrSwigPlugin : public IAsrSwigBase
 {
     virtual AsrRetPluginFeature EnumFeature(const size_t index) = 0;
@@ -77,10 +83,6 @@ ASR_INTERFACE IAsrSwigPlugin : public IAsrSwigBase
     virtual ~IAsrSwigPlugin() override = default;
 };
 
-/**
- * @brief Plugin should define AsrRetPlugin AsrCoCreatePlugin()
- *
- */
 ASR_RET_TYPE_DECLARE_BEGIN(AsrRetPlugin)
     std::shared_ptr<IAsrSwigPlugin> value;
 ASR_RET_TYPE_DECLARE_END

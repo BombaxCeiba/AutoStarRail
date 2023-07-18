@@ -21,7 +21,7 @@ ASR_NS_ANONYMOUS_DETAILS_END
 
 class SingletonJvm
 {
-    static boost::dll::shared_library jvm_dll_;
+    static boost::dll::shared_library  jvm_dll_;
     static decltype(&JNI_CreateJavaVM) func_jni_create_jvm_;
     static void LoadJvm(const std::filesystem::path& jvm_path)
     {
@@ -34,6 +34,20 @@ class SingletonJvm
 
 ASR_DEFINE_VARIABLE(SingletonJvm::jvm_dll_){};
 ASR_DEFINE_VARIABLE(SingletonJvm::func_jni_create_jvm_){nullptr};
+
+class JavaRuntime final : public IForeignLanguageRuntime
+{
+public:
+    JavaRuntime();
+    int64_t   AddRef() override { return 1; };
+    int64_t   Release() override { return 1; };
+    AsrResult QueryInterface(const AsrGuid&, void**) override
+    {
+        return ASR_E_NO_IMPLEMENTATION;
+    }
+    auto LoadPlugin(const std::filesystem::path& path)
+        -> ASR::Utils::Expected<CommonPluginPtr> override;
+};
 
 ASR_NS_JAVAHOST_END
 

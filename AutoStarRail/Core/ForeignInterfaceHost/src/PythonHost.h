@@ -25,6 +25,9 @@ struct PythonRuntimeDesc : public ForeignLanguageRuntimeFactoryDescBase
 {
 };
 
+auto CreateForeignLanguageRuntime(const PythonRuntimeDesc& desc)
+    -> ASR::Utils::Expected<AsrPtr<IForeignLanguageRuntime>>;
+
 class PyObjectPtr
 {
     struct AttachOnly
@@ -49,20 +52,9 @@ public:
     _object*  Get() const noexcept;
     [[nodiscard]]
     _object* Detach() noexcept;
-    bool operator==(const _object* const other) const noexcept;
-    bool operator==(PyObjectPtr other) const noexcept;
+    bool     operator==(const _object* const other) const noexcept;
+    bool     operator==(PyObjectPtr other) const noexcept;
     explicit operator bool() const noexcept;
-};
-
-class PythonRuntime final : public IForeignLanguageRuntime
-{
-private:
-    PyObjectPtr p_plugin_module;
-
-public:
-    PythonRuntime();
-    AsrResult Init(const ForeignLanguageRuntimeFactoryDescBase& desc) override;
-    AsrResult LoadPlugin(const std::filesystem::path& path) override;
 };
 
 ASR_NS_PYTHONHOST_END

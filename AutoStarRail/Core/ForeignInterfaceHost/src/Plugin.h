@@ -24,14 +24,11 @@ ASR_CORE_FOREIGNINTERFACEHOST_NS_BEGIN
 class Plugin
 {
     friend class PluginManager;
-    
-    std::variant<AsrPtr<IAsrPlugin>, std::shared_ptr<IAsrSwigPlugin>> p_plugin_{
-        AsrPtr<IAsrPlugin>{}};
+
+    CommonPluginPtr                          p_plugin_{AsrPtr<IAsrPlugin>{}};
     std::unique_ptr<PluginDesc>              desc_;
     std::unique_ptr<IForeignLanguageRuntime> up_runtime_;
-    // std::time_t                              metadata_last_write_time_{0};
-    // std::time_t                              plugin_last_write_time_{0};
-    ForeignInterfaceLanguage language_;
+    ForeignInterfaceLanguage                 language_;
 
 public:
     Plugin(
