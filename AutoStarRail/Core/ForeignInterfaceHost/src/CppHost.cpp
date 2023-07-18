@@ -2,6 +2,7 @@
 #include "AutoStarRail/AsrPtr.hpp"
 #include "AutoStarRail/IAsrBase.h"
 #include "AutoStarRail/PluginInterface/IAsrPlugin.h"
+#include <AutoStarRail/Utils/Utils.hpp>
 #include "tl/expected.hpp"
 #include <boost/dll/shared_library.hpp>
 
@@ -11,11 +12,12 @@ ASR_NS_CPPHOST_BEGIN
 
 class CppRuntime final : public IForeignLanguageRuntime
 {
-    boost::dll::shared_library plugin_lib_;
+    ASR::Utils::RefCounter<IForeignLanguageRuntime> ref_counter_{};
+    boost::dll::shared_library                      plugin_lib_{};
 
 public:
-    int64_t   AddRef() override { return 1; };
-    int64_t   Release() override { return 1; };
+    int64_t   AddRef() override { return ref_counter_.AddRef(); };
+    int64_t   Release() override { return ref_counter_.Release(this); };
     AsrResult QueryInterface(const AsrGuid&, void**) override
     {
         return ASR_E_NO_IMPLEMENTATION;
