@@ -1,5 +1,4 @@
 #include "PluginManager.h"
-#include <AutoStarRail/Core/GlobalSettingManager/GlobalSettingsManager.h>
 #include <AutoStarRail/Utils/StringUtils.h>
 #include <AutoStarRail/AsrString.hpp>
 #include <AutoStarRail/IAsrBase.h>
@@ -62,8 +61,8 @@ ASR_NS_ANONYMOUS_DETAILS_BEGIN
 struct _asr_internal_GetPluginFeatureContext
 {
     const size_t      index;
-    AsrResult&        out_enum_result;
-    AsrPluginFeature& out_feature;
+    AsrResult*        p_out_enum_result;
+    AsrPluginFeature* p_out_feature;
 };
 
 template <class T>
@@ -73,9 +72,9 @@ constexpr auto MakePluginFeatureGetter()
     {
         return [](T& p_plugin, _asr_internal_GetPluginFeatureContext context)
         {
-            context.out_enum_result =
-                p_plugin->EnumFeature(context.index, &context.out_feature);
-            return context.out_enum_result == ASR_S_OK;
+            *context.p_out_enum_result =
+                p_plugin->EnumFeature(context.index, context.p_out_enum_result);
+            return *context.p_out_enum_result == ASR_S_OK;
         };
     }
     else if constexpr (std::is_same_v<std::shared_ptr<IAsrSwigPlugin>, T>)
@@ -83,9 +82,9 @@ constexpr auto MakePluginFeatureGetter()
         return [](T& p_plugin, _asr_internal_GetPluginFeatureContext context)
         {
             const auto swig_enum_result = p_plugin->EnumFeature(context.index);
-            context.out_feature = swig_enum_result.value;
-            context.out_enum_result = swig_enum_result.error_code;
-            return context.out_enum_result == ASR_S_OK;
+            *context.p_out_feature = swig_enum_result.value;
+            *context.p_out_enum_result = swig_enum_result.error_code;
+            return *context.p_out_enum_result == ASR_S_OK;
         };
     }
 }
@@ -105,7 +104,7 @@ auto GetSupportedFeatures(T& p_plugin, std::string_view plugin_name)
 
     constexpr auto checker = MakePluginFeatureGetter<T>();
 
-    for (; checker(p_plugin, {index, enum_feature_result, feature}); index++)
+    for (; checker(p_plugin, {index, &enum_feature_result, &feature}); index++)
     {
         if (index < max_enum_count)
         {

@@ -1,10 +1,12 @@
-#include "AutoStarRail/Utils/IAsrBaseAdapterUtils.h"
-#include <AutoStarRail/AsrConfig.h>
+#include <AutoStarRail/Utils/IAsrBaseAdapterUtils.h>
+#include <AutoStarRail/Core/GlobalSettingManager/Config.h>
 #include <AutoStarRail/Core/ForeignInterfaceHost/AsrStringImpl.h>
 #include <AutoStarRail/ExportInterface/IAsrSettings.h>
 #include <AutoStarRail/Utils/Utils.hpp>
 #include <AutoStarRail/Core/Logger/Logger.h>
 #include <nlohmann/json.hpp>
+
+ASR_CORE_GLOBALSETTINGSMANAGER_NS_BEGIN
 
 ASR_NS_ANONYMOUS_DETAILS_BEGIN
 
@@ -54,6 +56,8 @@ T GetJsonValueOnDefaultErrorHandle(const nlohmann::json& j, const char* key)
         default_on_json_error);
 }
 
+ASR_NS_ANONYMOUS_DETAILS_END
+
 class GlobalSettingsImpl
 {
     nlohmann::json config_;
@@ -79,22 +83,30 @@ public:
 
     AsrRetString GetString(const char* key) const
     {
-        return GetJsonValueOnDefaultErrorHandle<AsrRetString>(config_, key);
+        return Details::GetJsonValueOnDefaultErrorHandle<AsrRetString>(
+            config_,
+            key);
     }
 
     AsrRetBool GetBool(const char* key) const
     {
-        return GetJsonValueOnDefaultErrorHandle<AsrRetBool>(config_, key);
+        return Details::GetJsonValueOnDefaultErrorHandle<AsrRetBool>(
+            config_,
+            key);
     }
 
     AsrRetFloat GetFloat(const char* key) const
     {
-        return GetJsonValueOnDefaultErrorHandle<AsrRetFloat>(config_, key);
+        return Details::GetJsonValueOnDefaultErrorHandle<AsrRetFloat>(
+            config_,
+            key);
     }
 
     AsrRetInt GetInt(const char* key) const
     {
-        return GetJsonValueOnDefaultErrorHandle<AsrRetInt>(config_, key);
+        return Details::GetJsonValueOnDefaultErrorHandle<AsrRetInt>(
+            config_,
+            key);
     }
 };
 
@@ -217,16 +229,18 @@ public:
 
 GlobalSettingsAdapter g_settings_adapter{};
 
-ASR_NS_ANONYMOUS_DETAILS_END
+ASR_CORE_GLOBALSETTINGSMANAGER_NS_END
 
 std::shared_ptr<IAsrSwigSettings> GetIAsrSwigSettings()
 {
-    auto result = std::make_shared<Details::GlobalSettingsSwigAdapter>();
+    auto result = std::make_shared<
+        ASR::Core::GlobalSettingsManager::GlobalSettingsSwigAdapter>();
     return result;
 }
 
 AsrResult GetIAsrSettings(IAsrSettings** pp_settings)
 {
-    *pp_settings = std::addressof(Details::g_settings_adapter);
+    *pp_settings =
+        std::addressof(ASR::Core::GlobalSettingsManager::g_settings_adapter);
     return ASR_S_OK;
 }
