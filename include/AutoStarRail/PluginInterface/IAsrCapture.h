@@ -88,7 +88,7 @@ SWIG_IGNORE(CreateIAsrImage)
 ASR_C_API AsrResult CreateIAsrImage(
     char**      pp_data,
     size_t*     size,
-    bool*       p_out_is_pass_ownership,
+    AsrBool*    p_out_is_pass_ownership,
     IAsrImage** pp_out_image);
 
 #endif // ASR_ICAPTURE_H

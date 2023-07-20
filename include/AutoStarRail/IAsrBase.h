@@ -64,7 +64,7 @@
 #ifdef _MSC_VER
 #define ASR_STD_CALL __stdcall
 #else
-#define ASR_STD_CALL  __attribute__((__stdcall__))
+#define ASR_STD_CALL __attribute__((__stdcall__))
 #endif // _MSC_VER
 
 #define ASR_INTERFACE struct
@@ -89,6 +89,8 @@ typedef struct _asr_RetGuid
     AsrResult error_code;
     AsrGuid   guid;
 } AsrRetGuid;
+
+typedef char AsrBool;
 
 /**
  * @brief input format should be "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -139,6 +141,16 @@ struct IAsrBaseDeleter
 {
     void operator()(IAsrBase* ptr) const noexcept { ptr->Release(); }
 };
+
+ASR_INTERFACE IAsrGuidVector : public IAsrBase
+{
+    ASR_METHOD At(size_t index, AsrGuid * p_out_guid) = 0;
+    ASR_METHOD Add(AsrGuid * p_guid) = 0;
+    ASR_METHOD DeleteAt(size_t index) = 0;
+};
+
+ASR_C_API AsrResult
+CreateIAsrReadOnlyStringVector(AsrGuid** p_in_guid_array, const size_t size);
 
 #endif // SWIG
 

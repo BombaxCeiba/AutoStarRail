@@ -14,6 +14,14 @@ struct AsrDate
     uint8_t  second;
 };
 
+enum class AsrTaskType
+{
+    Normal,
+    StartUp,
+    Login,
+    Exit
+};
+
 ASR_DEFINE_GUID(
     ASR_IID_TASK,
     IAsrTask,
@@ -37,10 +45,15 @@ ASR_INTERFACE IAsrTask : public IAsrBase
     ASR_METHOD GetName(IAsrReadOnlyString * *pp_out_name) = 0;
     ASR_METHOD GetDescription(IAsrReadOnlyString * *pp_out_settings) = 0;
     ASR_METHOD GetLabel(IAsrReadOnlyString * *pp_out_label) = 0;
+    ASR_METHOD GetType(AsrTaskType * p_out_type) = 0;
 };
 
 ASR_RET_TYPE_DECLARE_BEGIN(AsrRetDate)
     AsrDate value;
+ASR_RET_TYPE_DECLARE_END
+
+ASR_RET_TYPE_DECLARE_BEGIN(AsrRetTaskType)
+    AsrTaskType value;
 ASR_RET_TYPE_DECLARE_END
 
 ASR_DEFINE_GUID(
@@ -62,10 +75,11 @@ ASR_INTERFACE IAsrSwigTask : public IAsrSwigBase
     virtual AsrResult Do(
         AsrString connection_json,
         AsrString task_settings_json) = 0;
-    virtual AsrRetDate   GetNextExecutionTime() = 0;
-    virtual AsrRetString GetName() = 0;
-    virtual AsrRetString GetDescription() = 0;
-    virtual AsrRetString GetLabel() = 0;
+    virtual AsrRetDate     GetNextExecutionTime() = 0;
+    virtual AsrRetString   GetName() = 0;
+    virtual AsrRetString   GetDescription() = 0;
+    virtual AsrRetString   GetLabel() = 0;
+    virtual AsrRetTaskType GetType() = 0;
 };
 
 #endif // ASR_ITASK_H

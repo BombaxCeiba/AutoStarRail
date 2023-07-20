@@ -12,12 +12,12 @@ ASR_NS_CPPHOST_BEGIN
 
 class CppRuntime final : public IForeignLanguageRuntime
 {
-    ASR::Utils::RefCounter<IForeignLanguageRuntime> ref_counter_{};
+    ASR::Utils::RefCounter<CppRuntime> ref_counter_{};
     boost::dll::shared_library                      plugin_lib_{};
 
 public:
-    int64_t   AddRef() override { return ref_counter_.AddRef(); };
-    int64_t   Release() override { return ref_counter_.Release(this); };
+    int64_t   AddRef() override { return ref_counter_.AddRef(); }
+    int64_t   Release() override { return ref_counter_.Release(this); }
     AsrResult QueryInterface(const AsrGuid&, void**) override
     {
         return ASR_E_NO_IMPLEMENTATION;
