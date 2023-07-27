@@ -198,9 +198,13 @@ public:
 ASR_C_API AsrResult
 CreateIAsrStringFromUtf8(const char* p_utf8_string, IAsrString** pp_out_string);
 
+ASR_C_API AsrResult CreateIAsrReadOnlyStringFromUtf8(
+    const char*          p_utf8_string,
+    IAsrReadOnlyString** pp_out_string);
+
 /**
- * @brief same as ASR_METHOD IAsrString::SetW(const wchar_t* p_string, size_t
- * length) = 0
+ * @brief same as ASR_METHOD IAsrString::SetW(const wchar_t* p_string,
+ * size_t length) = 0
  *
  * @param p_wstring
  * @param size
@@ -211,6 +215,11 @@ ASR_C_API AsrResult CreateIAsrStringFromWChar(
     const wchar_t* p_wstring,
     size_t         size,
     IAsrString**   pp_out_string);
+
+ASR_C_API AsrResult CreateIAsrReadOnlyStringFromWChar(
+    const wchar_t*       p_wstring,
+    size_t               size,
+    IAsrReadOnlyString** pp_out_string);
 #endif // SWIG
 
 ASR_RET_TYPE_DECLARE_BEGIN(AsrRetString)

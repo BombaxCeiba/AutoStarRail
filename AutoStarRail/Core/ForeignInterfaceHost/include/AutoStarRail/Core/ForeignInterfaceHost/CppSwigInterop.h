@@ -9,7 +9,7 @@
 #include <AutoStarRail/PluginInterface/IAsrPlugin.h>
 #include <AutoStarRail/Utils/Utils.hpp>
 #include <AutoStarRail/Core/Logger/Logger.h>
-#include <AutoStarRail/Core/ForeignInterfaceHost/QueryInterfaceImpl.hpp>
+#include "AutoStarRail/Utils/QueryInterfaceImpl.hpp"
 #include <AutoStarRail/Core/ForeignInterfaceHost/IsCastAvailableImpl.hpp>
 #include <AutoStarRail/Core/ForeignInterfaceHost/Config.h>
 #include <string_view>
@@ -54,7 +54,7 @@ public:
 
     AsrResult QueryInterface(const AsrGuid& iid, void** pp_out_object) override
     {
-        return ASR::Core::ForeignInterfaceHost::QueryInterface<T>(
+        return ASR::Utils::QueryInterface<T>(
             this,
             iid,
             pp_out_object);

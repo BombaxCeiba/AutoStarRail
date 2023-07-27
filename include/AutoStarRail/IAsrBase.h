@@ -52,6 +52,7 @@
 #define ASR_E_INVALID_JSON ASR_E_RESERVED - 7
 #define ASR_E_TYPE_ERROR ASR_E_RESERVED - 8
 #define ASR_E_INVALID_FILE ASR_E_RESERVED - 9
+#define ASR_E_INVALID_URL ASR_E_RESERVED - 10
 /**
  * @brief 返回此值可以表示枚举结束
  *

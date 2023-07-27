@@ -57,7 +57,7 @@ ASR_INTERFACE IAsrCaptureFactory : public IAsrBase
      */
     ASR_METHOD CreateInstance(
         IAsrReadOnlyString * p_json_config,
-        IAsrCapture * *pp_object);
+        IAsrCapture * *pp_object) = 0;
 };
 
 ASR_INTERFACE IAsrSwigCaptureFactory;

@@ -15,3 +15,19 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/lib/MinSizeRel
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/bin/MinSizeRel/plugins)
 
 asr_add_library(SHARED AdbCapture ASR_EX_PRIVATE_LIBS)
+
+target_link_libraries(AdbCapture PRIVATE zlib)
+
+target_include_directories(AdbCapture PRIVATE ${gzip-hpp_SOURCE_DIR}/include)
+
+if(ASR_USE_BUNDLIED_BOOST)
+    target_link_libraries(AdbCapture PUBLIC 
+        Boost::process 
+        Boost::container_hash
+        Boost::asio)
+else()
+    target_include_directories(AdbCapture PUBLIC ${Boost_INCLUDE_DIRS})
+    target_link_libraries(AdbCapture PRIVATE ${Boost_LIBRARIES})
+endif()
+
+target_link_libraries(AdbCapture PRIVATE Boost::url)

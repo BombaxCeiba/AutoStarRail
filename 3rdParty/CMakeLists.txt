@@ -39,6 +39,43 @@ add_custom_target(AsrAutoCopyDll ALL DEPENDS AsrCoreObjects)
 set(CMAKE_CXX_STANDARD 20)
 add_library(Asr3rdParty INTERFACE)
 
+message("================================================================")
+
+message(STATUS "The third-party libraries listed later are only used for plugins.")
+
+message(STATUS "Downloading and collecting headers in gzip-hpp")
+
+FetchContent_Declare(
+    gzip-hpp
+    URL "${GITHUB_MIRROR_URL}/mapbox/gzip-hpp/archive/refs/tags/v0.1.0.tar.gz"
+    URL_HASH SHA256=7ce3908cd13f186987820be97083fc5e62a7c6df0877af44b334a92e868eff06)
+
+if(NOT gzip-hpp_POPULATED)
+    FetchContent_Populate(gzip-hpp)
+endif()
+
+message("================================================================")
+
+message(STATUS "The third-party libraries listed later are globally shared in the project.")
+
+function(_download_and_config_zlib_ng)
+    message(STATUS "Downloading and configuring zlib-ng")
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    set(ZLIB_COMPAT ON)
+    set(ZLIB_ENABLE_TESTS OFF)
+    set(BUILD_SHARED_LIBS OFF)
+    FetchContent_Declare(
+        zlib-ng
+        URL "${GITHUB_MIRROR_URL}/zlib-ng/zlib-ng/archive/refs/tags/2.1.3.tar.gz"
+        URL_HASH SHA256=d20e55f89d71991c59f1c5ad1ef944815e5850526c0d9cd8e504eaed5b24491a)
+    FetchContent_MakeAvailable(zlib-ng)
+endfunction()
+
+_download_and_config_zlib_ng()
+
+set(ZLIB_NG_INCLUDE_DIR ${CMAKE_BINARY_DIR}/_deps/zlib-ng-build)
+set(ZLIB_NG_LIBRARY zlib)
+
 if(${BUILD_TEST})
     # config GoogleTest
     # GoogleTest requires at least C++14
@@ -60,13 +97,13 @@ if(${BUILD_QT5_GUI})
     find_package(Qt5 COMPONENTS Widgets Qml Quick REQUIRED)
 endif()
 
-message(STATUS "Downloading and configuring tl::expected")
+message(STATUS "Downloading and collecting headers in tl::expected")
 FetchContent_Declare(
     tl_expected
     URL "${GITHUB_MIRROR_URL}/TartanLlama/expected/archive/refs/tags/v1.1.0.zip"
 )
 
-if(NOT tl_expected)
+if(NOT tl_expected_POPULATED)
     FetchContent_Populate(tl_expected)
 endif()
 
@@ -119,7 +156,7 @@ target_link_libraries(Asr3rdParty INTERFACE spdlog::spdlog)
 function(_download_and_config_opencv)
     message(STATUS "Downloading OpenCV source.")
 
-    #fix error on CMake 3.27 rc4
+    # fix error on CMake 3.27 rc4
     if(POLICY CMP0148)
         cmake_policy(SET CMP0148 NEW)
     endif()
@@ -162,6 +199,7 @@ function(_download_and_config_opencv)
     set(BUILD_opencv_ts OFF)
     set(BUILD_PERF_TESTS OFF)
     set(BUILD_TESTS OFF)
+    set(BUILD_ZLIB OFF)
 
     FetchContent_MakeAvailable(OpenCV48)
     list(APPEND ASR_OPENCV_COMPONENTS opencv_core opencv_imgproc)
@@ -314,6 +352,7 @@ function(_download_and_config_boost)
 endfunction()
 
 set(BOOST_FILESYSTEM_NO_DEPRECATED ON)
+
 if(${ASR_USE_BUNDLIED_BOOST})
     _download_and_config_boost()
     set(ASR_USE_BUNDLIED_BOOST TRUE)
@@ -324,7 +363,7 @@ if(${ASR_USE_BUNDLIED_BOOST})
         Boost::bimap
         Boost::container_hash)
 else()
-    find_package(Boost 1.82 COMPONENTS filesystem)
+    find_package(Boost 1.82 COMPONENTS filesystem url)
 
     if(NOT Boost_FOUND)
         message(FATAL_ERROR "Boost not found. Please install it manually or set ASR_USE_BUNDLIED_BOOST=ON.")

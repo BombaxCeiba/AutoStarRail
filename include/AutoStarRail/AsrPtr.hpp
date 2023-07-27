@@ -92,6 +92,7 @@ public:
     T*   operator->() const { return ptr_; }
     T&   operator*() const { return *ptr_; }
     bool operator==(const AsrPtr<T>& other) const { return ptr_ == other.ptr_; }
+    explicit operator bool() const noexcept { return Get() != nullptr; }
     template <class Other>
     Other* As(const AsrGuid& id) const
     {

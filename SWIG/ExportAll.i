@@ -9,6 +9,7 @@
 #include <AutoStarRail/PluginInterface/IAsrPlugin.h>
 
 #include <AutoStarRail/ExportInterface/IAsrSettings.h>
+#include <AutoStarRail/ExportInterface/AsrLogger.h>
 %}
 
 %include <stdint.i>
@@ -79,3 +80,4 @@
 %include <AutoStarRail/PluginInterface/IAsrPlugin.h>
 
 %include <AutoStarRail/ExportInterface/IAsrSettings.h>
+%include <AutoStarRail/ExportInterface/AsrLogger.h>

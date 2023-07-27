@@ -12,16 +12,17 @@
 #define ASR_NS_END }
 
 #define ASR_NS_ANONYMOUS_DETAILS_BEGIN                                         \
-    namespace                                                                  \
+    namespace Details                                                          \
     {                                                                          \
-        namespace Details                                                      \
+        namespace                                                              \
         {
 
 #define ASR_NS_ANONYMOUS_DETAILS_END                                           \
     }                                                                          \
     }
 
-#define ASR_PRAGMA(x) _Pragma
+#define ASR_PRAGMA_IMPL(x) _Pragma(#x)
+#define ASR_PRAGMA(x) ASR_PRAGMA_IMPL(x)
 
 #define ASR_STR_IMPL(x) #x
 #define ASR_STR(x) ASR_STR_IMPL(x)
@@ -44,30 +45,32 @@
 #define ASR_USING_BASE_CTOR(base) using base::base
 
 #ifdef _MSC_VER
-#define ASR_DISABLE_WARNING_BEGIN(x)                                           \
-    ASR_PRAGMA(push)                                                           \
-    ASR_PRAGMA(warning(disable : x))
+#define ASR_DISABLE_WARNING_BEGIN ASR_PRAGMA(push)
+
+#define ASR_IGNORE_UNUSED_PARAMETER ASR_PRAGMA(warning(disable : C4100))
 
 #elif defined(__GNUC__)
-#define ASR_DISABLE_WARNING_BEGIN(x)                                           \
-    ASR_PRAGMA(GCC diagnostic push)                                            \
-    ASR_PRAGMA(GCC diagnostic ignored x)
+#define ASR_DISABLE_WARNING_BEGIN ASR_PRAGMA(GCC diagnostic push)
+
+#define ASR_IGNORE_UNUSED_PARAMETER                                            \
+    ASR_PRAGMA(GCC diagnostic ignored "-Wunused-parameter")
 
 #elif defined(__clang__)
-#define ASR_DISABLE_WARNING_BEGIN(x)                                           \
-    ASR_PRAGMA(clang diagnostic push)                                          \
-    ASR_PRAGMA(clang diagnostic ignored x)
+#define ASR_DISABLE_WARNING_BEGIN ASR_PRAGMA(clang diagnostic push)
+
+#define ASR_IGNORE_UNUSED_PARAMETER                                            \
+    ASR_PRAGMA(clang diagnostic ignored "-Wunused-parameter")
 
 #endif
 
 #ifdef _MSC_VER
-#define ASR_DISABLE_WARNING_END(x) ASR_PRAGMA(pop)
+#define ASR_DISABLE_WARNING_END ASR_PRAGMA(pop)
 
 #elif defined(__GNUC__)
-#define ASR_DISABLE_WARNING_END(x) ASR_PRAGMA(GCC diagnostic pop)
+#define ASR_DISABLE_WARNING_END ASR_PRAGMA(GCC diagnostic pop)
 
 #elif defined(__clang__)
-#define ASR_DISABLE_WARNING_END(x) ASR_PRAGMA(clang diagnostic pop)
+#define ASR_DISABLE_WARNING_END ASR_PRAGMA(clang diagnostic pop)
 
 #endif
 

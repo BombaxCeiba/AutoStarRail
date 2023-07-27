@@ -8,7 +8,7 @@ target_link_libraries(AsrUtils PUBLIC Asr3rdParty)
 
 # Prevent visual studio treat headers as sources.
 #file(GLOB_RECURSE ASR_COMMON_HEADERS ${CMAKE_SOURCE_DIR}/include/*) ${ASR_COMMON_HEADERS}
-add_library(AsrCommmonHeaders INTERFACE )
+add_library(AsrCommmonHeaders INTERFACE)
 target_include_directories(AsrCommmonHeaders INTERFACE ${CMAKE_SOURCE_DIR}/include/)
 target_link_libraries(AsrUtils PUBLIC AsrCommmonHeaders)
 
@@ -17,7 +17,7 @@ add_library(ASR_EX_PRIVATE_LIBS ALIAS AsrUtils)
 if(${BUILD_TEST})
     include(GoogleTest)
     asr_add_additional_test(AdditionalTest)
-    target_link_libraries(AdditionalTest PUBLIC AsrUtils)
+    target_link_libraries(AdditionalTest PRIVATE AsrUtils Boost::url)
 endif()
 
 add_subdirectory(Core)

@@ -59,6 +59,8 @@ public:
 
     ~OnExit() { on_exit_func_(); }
 };
+template <class OnExitFunc>
+OnExit(OnExitFunc) -> OnExit<OnExitFunc>;
 
 template <class T, class OnExitFunc>
 class ScopeGuard : public NonCopyableAndNonMovable
@@ -178,6 +180,14 @@ C MakeEmptyContainer()
 {
     using Allocator = typename C::allocator_type;
     C result{std::size_t{0}, {}, Allocator{}};
+    return result;
+}
+
+template <class C>
+C MakeContainerOfSize(const std::size_t size)
+{
+    using Allocator = typename C::allocator_type;
+    C result{size, {}, Allocator{}};
     return result;
 }
 

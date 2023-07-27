@@ -1,7 +1,7 @@
 #include "AutoStarRail/AsrConfig.h"
 #include "AutoStarRail/Core/ForeignInterfaceHost/Config.h"
 #include <AutoStarRail/Core/ForeignInterfaceHost/AsrStringImpl.h>
-#include <AutoStarRail/Core/ForeignInterfaceHost/QueryInterfaceImpl.hpp>
+#include "AutoStarRail/Utils/QueryInterfaceImpl.hpp"
 #include <AutoStarRail/Utils/Utils.hpp>
 #include <cstddef>
 #include <functional>
@@ -13,7 +13,7 @@
 #include <cstring>
 #include <nlohmann/json.hpp>
 
-auto (ASR_FMT_NS::formatter<IAsrReadOnlyString, char>::format)(
+auto(ASR_FMT_NS::formatter<IAsrReadOnlyString, char>::format)(
     IAsrReadOnlyString* p_string,
     format_context&     ctx) const ->
     typename std::remove_reference_t<decltype(ctx)>::iterator
@@ -33,13 +33,11 @@ auto (ASR_FMT_NS::formatter<IAsrReadOnlyString, char>::format)(
     }
 }
 
-ASR_CORE_FOREIGNINTERFACEHOST_NS_BEGIN
+ASR_UTILS_NS_BEGIN
 
-ASR_CORE_FOREIGNINTERFACEHOST_DEFINE_QUERYINTERFACEIMPL(
-    IAsrString,
-    AsrStringCppImpl);
+ASR_UTILS_DEFINE_QUERYINTERFACEIMPL(IAsrString, AsrStringCppImpl);
 
-ASR_CORE_FOREIGNINTERFACEHOST_NS_END
+ASR_UTILS_NS_END
 
 void AsrStringCppImpl::InvalidateCache()
 {
@@ -82,10 +80,7 @@ int64_t AsrStringCppImpl::Release() { return ref_counter_.Release(this); }
 
 AsrResult AsrStringCppImpl::QueryInterface(const AsrGuid& iid, void** pp_object)
 {
-    return ASR::Core::ForeignInterfaceHost::QueryInterface<AsrStringCppImpl>(
-        this,
-        iid,
-        pp_object);
+    return ASR::Utils::QueryInterface<AsrStringCppImpl>(this, iid, pp_object);
 }
 
 const UChar32* AsrStringCppImpl::CBegin()
@@ -285,8 +280,10 @@ namespace Details
         int64_t   Release() override { return 1; }
         AsrResult QueryInterface(const AsrGuid& iid, void** pp_object) override
         {
-            return ASR::Core::ForeignInterfaceHost::QueryInterface<
-                IAsrReadOnlyString>(this, iid, pp_object);
+            return ASR::Utils::QueryInterface<IAsrReadOnlyString>(
+                this,
+                iid,
+                pp_object);
         }
 
         AsrResult GetUtf8(const char** out_string) override
@@ -345,6 +342,16 @@ AsrResult CreateIAsrStringFromUtf8(
     return ASR_S_OK;
 }
 
+AsrResult CreateIAsrReadOnlyStringFromUtf8(
+    const char*          p_utf8_string,
+    IAsrReadOnlyString** pp_out_string)
+{
+    IAsrString* p_string = nullptr;
+    auto        result = CreateIAsrStringFromUtf8(p_utf8_string, &p_string);
+    *pp_out_string = p_string;
+    return result;
+}
+
 AsrResult CreateIAsrStringFromWChar(
     const wchar_t* p_wstring,
     size_t         size,
@@ -355,4 +362,15 @@ AsrResult CreateIAsrStringFromWChar(
     p_string->AddRef();
     *pp_out_string = p_string.release();
     return ASR_S_OK;
+}
+
+AsrResult CreateIAsrReadOnlyStringFromWChar(
+    const wchar_t*       p_wstring,
+    size_t               size,
+    IAsrReadOnlyString** pp_out_string)
+{
+    IAsrString* p_string = nullptr;
+    auto        result = CreateIAsrStringFromWChar(p_wstring, size, &p_string);
+    *pp_out_string = p_string;
+    return result;
 }

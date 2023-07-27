@@ -7,7 +7,7 @@
 #include <AutoStarRail/PluginInterface/IAsrTask.h>
 #include <memory>
 
-enum class AsrPluginFeature
+enum class AsrPluginFeature : uint8_t
 {
     Capture,
     ErrorLens,
