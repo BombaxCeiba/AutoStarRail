@@ -1,6 +1,6 @@
 function(asr_add_library TYPE SUB_DIRECTORY_NAME PRIVATE_EX_LIBS)
     # file(GLOB_RECURSE HEADERS
-    #     ${CMAKE_CURRENT_SOURCE_DIR}/${SUB_DIRECTORY_NAME}/include/*)
+    # ${CMAKE_CURRENT_SOURCE_DIR}/${SUB_DIRECTORY_NAME}/include/*)
     file(GLOB SOURCES ${SUB_DIRECTORY_NAME}/src/*)
     add_library(${SUB_DIRECTORY_NAME} ${TYPE} ${SOURCES})
     target_include_directories(${SUB_DIRECTORY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/${SUB_DIRECTORY_NAME}/include)
@@ -8,10 +8,24 @@ function(asr_add_library TYPE SUB_DIRECTORY_NAME PRIVATE_EX_LIBS)
         $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
     )
+
     if(${TYPE} STREQUAL "SHARED")
         target_compile_definitions(${SUB_DIRECTORY_NAME} PRIVATE -DASR_BUILD_SHARED)
     endif()
 
+    target_link_libraries(${SUB_DIRECTORY_NAME} PUBLIC ${PRIVATE_EX_LIBS})
+endfunction()
+
+function(asr_add_plugin_library SUB_DIRECTORY_NAME PRIVATE_EX_LIBS)
+    # file(GLOB_RECURSE HEADERS
+    # ${CMAKE_CURRENT_SOURCE_DIR}/${SUB_DIRECTORY_NAME}/include/*)
+    file(GLOB SOURCES ${SUB_DIRECTORY_NAME}/src/*)
+    add_library(${SUB_DIRECTORY_NAME} SHARED ${SOURCES})
+    target_include_directories(${SUB_DIRECTORY_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/${SUB_DIRECTORY_NAME}/include)
+    target_compile_options(${SUB_DIRECTORY_NAME} PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+    )
     target_link_libraries(${SUB_DIRECTORY_NAME} PUBLIC ${PRIVATE_EX_LIBS})
 endfunction()
 

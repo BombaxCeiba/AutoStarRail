@@ -35,6 +35,24 @@ ASR_DISABLE_WARNING_END
 
 ASR_NS_BEGIN
 
+// reference from
+// https://developer.android.com/reference/android/graphics/PixelFormat
+// https://android.googlesource.com/platform/frameworks/base/+/android-4.3_r2.3/cmds/screencap/screencap.cpp
+// https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android-s-beta-4/cmds/screencap/screencap.cpp
+// NOTE: kN32_SkColorType selects the native 32-bit ARGB format. On little
+// endian processors, pixels containing 8-bit ARGB components pack into 32-bit
+//  kBGRA_8888_SkColorType. On big endian processors, pixels pack into 32-bit
+//  kRGBA_8888_SkColorType.
+// In this plugin, we assume the color type is RGBA_8888.
+enum class AdbCaptureFormat
+{
+    JPEG = 256,
+    RGBA_8888 = 1,
+    RGBX_8888 = 2,
+    RGB_888 = 3,
+    RGB_565 = 4
+};
+
 AdbCapture::AdbCapture(
     const std::filesystem::path& adb_path,
     std::string_view             adb_device_serial)

@@ -56,6 +56,9 @@ endif()
 
 message("================================================================")
 
+
+message("================================================================")
+
 message(STATUS "The third-party libraries listed later are globally shared in the project.")
 
 function(_download_and_config_zlib_ng)
@@ -467,3 +470,5 @@ if(NOT onnxruntime_FOUND)
 else()
     target_link_libraries(Asr3rdParty INTERFACE onnxruntime::onnxruntime)
 endif()
+
+message("================================================================")
